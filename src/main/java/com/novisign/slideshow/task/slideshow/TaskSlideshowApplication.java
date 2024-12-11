@@ -1,4 +1,4 @@
-package com.novisign.slideshow.task_slideshow;
+package com.novisign.slideshow.task.slideshow;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
