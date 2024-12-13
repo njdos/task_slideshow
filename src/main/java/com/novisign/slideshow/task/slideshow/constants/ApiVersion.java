@@ -1,7 +1,19 @@
 package com.novisign.slideshow.task.slideshow.constants;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+@Component
 public class ApiVersion {
 
-    public static final String VERSION_1 = "/v1";
+    @Value("${task.slideshow.version}")
+    private String version;
 
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
 }
