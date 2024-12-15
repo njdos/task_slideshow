@@ -1,5 +1,6 @@
 package com.novisign.slideshow.task.slideshow.exchange;
 
+import com.novisign.slideshow.task.slideshow.config.HttpClientConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -19,7 +20,6 @@ public class Fetcher {
 
     private final WebClient.Builder webClientBuilder;
     private final RetryPolicy retryPolicy;
-    private final Integer REQUEST_TIMEOUT_SECONDS = 10;
 
 
     public Mono<ClientResponse> fetchRequest(RequestBuilder request) {
@@ -27,7 +27,7 @@ public class Fetcher {
         WebClient.RequestBodySpec requestBodySpec = configureRequest(request, webClient);
 
         return requestBodySpec.exchange()
-                .timeout(Duration.ofSeconds(REQUEST_TIMEOUT_SECONDS))
+                .timeout(Duration.ofSeconds(HttpClientConfig.REQUEST_TIMEOUT_SECONDS))
                 .retryWhen(retryPolicy.createRetryPolicy());
     }
 

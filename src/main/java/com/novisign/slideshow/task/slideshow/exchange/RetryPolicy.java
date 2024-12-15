@@ -1,5 +1,6 @@
 package com.novisign.slideshow.task.slideshow.exchange;
 
+import com.novisign.slideshow.task.slideshow.config.HttpClientConfig;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.util.retry.Retry;
@@ -12,7 +13,7 @@ import java.util.concurrent.TimeoutException;
 public class RetryPolicy {
 
     public Retry createRetryPolicy() {
-        return Retry.backoff(3, Duration.ofSeconds(2))
+        return Retry.backoff(HttpClientConfig.RETRY_ATTEMPTS, Duration.ofSeconds(HttpClientConfig.RETRY_BACKOFF_SECONDS))
                 .filter(this::isRetryableError)
                 .onRetryExhaustedThrow((spec, signal) ->
                         new RuntimeException("All retry attempts exhausted", signal.failure()));
