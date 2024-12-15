@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: slideshow-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_R2DBC_URL: r2dbc:postgresql://db:5432/slideshow_db
+      SPRING_R2DBC_USERNAME: ${SPRING_R2DBC_USERNAME}
+      SPRING_R2DBC_PASSWORD: ${SPRING_R2DBC_PASSWORD}
+    networks:
+      - slideshow-network
+    restart: unless-stopped
+    env_file:
+      - .env
+
+  db:
+    image: postgres:15-alpine
+    container_name: slideshow-db
+    environment:
+      POSTGRES_USER: ${SPRING_R2DBC_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_R2DBC_PASSWORD}
+      POSTGRES_DB: slideshow_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./src/main/resources/db:/docker-entrypoint-initdb.d
+    networks:
+      - slideshow-network
+    restart: unless-stopped
+
+volumes:
+  db-data:
+
+networks:
+  slideshow-network:
+    driver: bridge

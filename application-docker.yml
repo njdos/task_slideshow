@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: task_slideshow
+  profiles:
+    active: docker
+
+  r2dbc:
+    url: r2dbc:postgresql://db:5432/slideshow_db  # Use Docker network name 'db'
+    username: ${SPRING_R2DBC_USERNAME:postgres}   # Default username is postgres, can be overridden via .env
+    password: ${SPRING_R2DBC_PASSWORD:docker1111} # Default password can be overridden via .env
+
+  jpa:
+    hibernate:
+      ddl-auto: update  # Automatically update schema, suitable for development; change for production
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://db:5432/slideshow_db  # Use Docker network name 'db'
+    username: ${SPRING_DATASOURCE_USERNAME:postgres} # Default username is postgres
+    password: ${SPRING_DATASOURCE_PASSWORD:docker1111} # Default password is docker1111
+
+  server:
+    port: 8080  # The default port the application runs on
+
+  logging:
+    level:
+      org.springframework.web: DEBUG  # Adjust logging level for web requests, adjust as needed
