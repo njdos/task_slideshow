@@ -2,7 +2,7 @@ package com.novisign.slideshow.task.slideshow.database.repository;
 
 import com.novisign.slideshow.task.slideshow.database.query.ImageQuery;
 import com.novisign.slideshow.task.slideshow.entity.Image;
-import com.novisign.slideshow.task.slideshow.service.image.mapper.Mapper;
+import com.novisign.slideshow.task.slideshow.mapper.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;

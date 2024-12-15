@@ -1,4 +1,4 @@
-package com.novisign.slideshow.task.slideshow.constants;
+package com.novisign.slideshow.task.slideshow.constant;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

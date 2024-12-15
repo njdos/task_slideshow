@@ -1,4 +1,4 @@
-package com.novisign.slideshow.task.slideshow.service.factory;
+package com.novisign.slideshow.task.slideshow.factory;
 
 import com.novisign.slideshow.task.slideshow.entity.ImageSearchEngine;
 import org.springframework.stereotype.Component;

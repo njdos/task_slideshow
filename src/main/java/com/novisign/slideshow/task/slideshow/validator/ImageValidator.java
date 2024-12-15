@@ -1,7 +1,7 @@
 package com.novisign.slideshow.task.slideshow.validator;
 
-import com.novisign.slideshow.task.slideshow.model.responce.ApiResponse;
-import org.springframework.http.HttpHeaders;
+import com.novisign.slideshow.task.slideshow.constant.ErrorCodes;
+import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import reactor.core.publisher.Mono;
@@ -17,31 +17,26 @@ public class ImageValidator {
 
     public Mono<ApiResponse> validate(Mono<ClientResponse> clientResponse, int duration) {
         return validateImage(clientResponse)
-                .flatMap(imageValidationResult -> {
-                    if (imageValidationResult.getCode() != 200) {
-                        return Mono.just(imageValidationResult);
-                    }
-
-                    return validateDuration(duration)
-                            .flatMap(isDurationValid -> isDurationValid
-                                    ? Mono.just(ApiResponse.success(200, imageValidationResult.getData()))
-                                    : Mono.just(ApiResponse.error(1002))
-                            );
-                });
+                .flatMap(validationResponse -> validationResponse.getCode() == 200
+                        ? validateDuration(duration, validationResponse)
+                        : Mono.just(validationResponse)
+                )
+                .onErrorResume(throwable -> Mono.just(ApiResponse.error(ErrorCodes.FAILED_VALIDATION)));
     }
 
     private Mono<ApiResponse> validateImage(Mono<ClientResponse> clientResponse) {
-        return clientResponse.flatMap(response -> {
-                    HttpHeaders headers = response.headers().asHttpHeaders();
-                    List<String> contentTypeHeaders = headers.get("Content-Type");
+        return clientResponse.flatMap(this::processClientResponse)
+                .onErrorResume(throwable -> Mono.just(ApiResponse.error(ErrorCodes.FAILED_VALIDATION)));
+    }
 
-                    return validateContentType(contentTypeHeaders)
-                            .map(imageTypeOpt -> imageTypeOpt
-                                    .map(type -> ApiResponse.success(200, List.of(Map.of("typeImage", type))))
-                                    .orElse(ApiResponse.error(1001))
-                            );
-                })
-                .onErrorResume(error -> Mono.just(ApiResponse.error(1000)));
+    private Mono<ApiResponse> processClientResponse(ClientResponse response) {
+        List<String> contentTypeHeaders = response.headers().asHttpHeaders().get("Content-Type");
+
+        return validateContentType(contentTypeHeaders)
+                .map(contentTypeOpt -> contentTypeOpt
+                        .map(type -> ApiResponse.success(ErrorCodes.SUCCESS, List.of(Map.of("typeImage", type))))
+                        .orElse(ApiResponse.error(ErrorCodes.FAILED_VALIDATION_IMAGE))
+                );
     }
 
     private Mono<Optional<String>> validateContentType(List<String> headers) {
@@ -49,14 +44,16 @@ public class ImageValidator {
             return Mono.just(Optional.empty());
         }
 
-        return Mono.just(
-                headers.stream()
-                        .filter(header -> header.startsWith("image/"))
-                        .findFirst()
+        return Mono.just(headers.stream()
+                .filter(header -> header.startsWith("image/"))
+                .findFirst()
         );
     }
 
-    private Mono<Boolean> validateDuration(int duration) {
-        return Mono.just(duration > 0 && duration <= MAX_DURATION);
+    private Mono<ApiResponse> validateDuration(int duration, ApiResponse validationResponse) {
+        boolean isValidDuration = duration > 0 && duration <= MAX_DURATION;
+        return isValidDuration
+                ? Mono.just(ApiResponse.success(ErrorCodes.OK, validationResponse.getData()))
+                : Mono.just(ApiResponse.error(ErrorCodes.FAILED_VALIDATION_DURATION));
     }
 }

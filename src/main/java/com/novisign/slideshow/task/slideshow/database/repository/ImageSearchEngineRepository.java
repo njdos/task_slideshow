@@ -2,7 +2,7 @@ package com.novisign.slideshow.task.slideshow.database.repository;
 
 import com.novisign.slideshow.task.slideshow.database.query.ImageSearchEngineQuery;
 import com.novisign.slideshow.task.slideshow.entity.ImageSearchEngine;
-import com.novisign.slideshow.task.slideshow.service.image.mapper.Mapper;
+import com.novisign.slideshow.task.slideshow.mapper.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
@@ -24,7 +24,8 @@ public class ImageSearchEngineRepository {
                 .bind("type", imageSearchEngine.getType())
                 .bind("imageId", imageSearchEngine.getImageId())
                 .map(Mapper.mapRowToId)
-                .one();
+                .one()
+                .onErrorReturn(-1L);
     }
 
 

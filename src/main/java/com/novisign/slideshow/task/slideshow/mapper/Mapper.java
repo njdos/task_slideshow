@@ -1,4 +1,4 @@
-package com.novisign.slideshow.task.slideshow.service.image.mapper;
+package com.novisign.slideshow.task.slideshow.mapper;
 
 import com.novisign.slideshow.task.slideshow.entity.Image;
 import io.r2dbc.spi.Row;

@@ -1,6 +1,6 @@
 package com.novisign.slideshow.task.slideshow.controller;
 
-import com.novisign.slideshow.task.slideshow.constants.ApiVersion;
+import com.novisign.slideshow.task.slideshow.constant.ApiVersion;
 import com.novisign.slideshow.task.slideshow.handler.ImageHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
