@@ -5,8 +5,8 @@ import org.springframework.http.HttpMethod;
 
 public class RequestBuilder {
 
-    private String url;
-    private HttpMethod method;
+    private final String url;
+    private final HttpMethod method;
     private HttpHeaders headers;
     private Object body;
 
