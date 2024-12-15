@@ -1,6 +1,6 @@
 package com.novisign.slideshow.task.slideshow.model;
 
-import com.novisign.slideshow.task.slideshow.constant.ErrorCodes;
+import com.novisign.slideshow.task.slideshow.constant.StatusCodes;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,18 +12,18 @@ public class ApiResponse {
     private String message;
     private List<Map<String, Object>> data;
 
-    public ApiResponse(ErrorCodes errorCode, List<Map<String, Object>> data) {
+    public ApiResponse(StatusCodes errorCode, List<Map<String, Object>> data) {
         this.code = errorCode.getCode();
-        this.status = errorCode == ErrorCodes.SUCCESS ? "success" : "error";
+        this.status = errorCode == StatusCodes.SUCCESS ? "success" : "error";
         this.message = errorCode.getMessage();
         this.data = data;
     }
 
-    public static ApiResponse success(ErrorCodes errorCode, List<Map<String, Object>> data) {
+    public static ApiResponse success(StatusCodes errorCode, List<Map<String, Object>> data) {
         return new ApiResponse(errorCode, data);
     }
 
-    public static ApiResponse error(ErrorCodes errorCode) {
+    public static ApiResponse error(StatusCodes errorCode) {
         return new ApiResponse(errorCode, Collections.emptyList());
     }
 

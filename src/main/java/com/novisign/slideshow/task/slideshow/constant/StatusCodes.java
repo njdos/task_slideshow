@@ -1,6 +1,6 @@
 package com.novisign.slideshow.task.slideshow.constant;
 
-public enum ErrorCodes {
+public enum StatusCodes {
 
     OK(200, "Ok"),
     SUCCESS(201, "Successfully added"),
@@ -17,7 +17,7 @@ public enum ErrorCodes {
     private final int code;
     private final String message;
 
-    ErrorCodes(int code, String message) {
+    StatusCodes(int code, String message) {
         this.code = code;
         this.message = message;
     }

@@ -1,6 +1,6 @@
 package com.novisign.slideshow.task.slideshow.processor;
 
-import com.novisign.slideshow.task.slideshow.constant.ErrorCodes;
+import com.novisign.slideshow.task.slideshow.constant.StatusCodes;
 import com.novisign.slideshow.task.slideshow.database.DatabaseAPI;
 import com.novisign.slideshow.task.slideshow.entity.Image;
 import com.novisign.slideshow.task.slideshow.exchange.Fetcher;
@@ -39,7 +39,7 @@ public class ImageProcessor {
         return fetcher.fetchRequest(imageRequest)
                 .flatMap(clientResponse -> imageValidator.validate(Mono.just(clientResponse), request.duration()))
                 .flatMap(validationResult -> {
-                    if (validationResult.getCode() != 200) {
+                    if (validationResult.getCode() != StatusCodes.OK.getCode()) {
                         return Mono.just(validationResult);
                     }
 
@@ -50,14 +50,14 @@ public class ImageProcessor {
     private Mono<ApiResponse> saveValidatedImage(ApiResponse validationResult, AddImageRequest request) {
         var imageType = urlUtils.extractImageType(validationResult);
         if (imageType.isEmpty()) {
-            return Mono.just(ApiResponse.error(ErrorCodes.FAILED_VALIDATION_IMAGE));
+            return Mono.just(ApiResponse.error(StatusCodes.FAILED_VALIDATION_IMAGE));
         }
 
         List<String> keywords = urlUtils.extractKeywordsFromUrl(request.url());
         Image image = new Image(request.url(), request.duration(), imageType.get());
 
         return databaseAPI.saveNewImage(image, keywords)
-                .map(savedImage -> ApiResponse.success(ErrorCodes.SUCCESS, Collections.emptyList()))
-                .onErrorResume(error -> Mono.just(ApiResponse.error(ErrorCodes.DATABASE_OPERATION_FAILED)));
+                .map(savedImage -> ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList()))
+                .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
     }
 }

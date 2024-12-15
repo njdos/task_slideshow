@@ -1,6 +1,6 @@
 package com.novisign.slideshow.task.slideshow.handler;
 
-import com.novisign.slideshow.task.slideshow.constant.ErrorCodes;
+import com.novisign.slideshow.task.slideshow.constant.StatusCodes;
 import com.novisign.slideshow.task.slideshow.model.AddImageRequest;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.service.ImageService;
@@ -31,7 +31,7 @@ public class ImageHandler {
                     return ServerResponse.status(status).bodyValue(apiResponse);
                 })
                 .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
-                        .bodyValue(ApiResponse.error(ErrorCodes.INVALID_REQUEST)));
+                        .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST)));
     }
 
 }
