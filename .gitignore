@@ -1,10 +1,10 @@
-HELP.md
+# Ignore build directories and compiled files
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+# ### STS (Spring Tool Suite) ###
 .apt_generated
 .classpath
 .factorypath
@@ -13,21 +13,37 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
+# ### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
 
-### NetBeans ###
+# ### NetBeans ###
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
+/build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
+# ### VS Code ###
 .vscode/
+
+# ### Maven ###
+# Ignore Maven's dependency directory
+.mvn/
+
+# ### Docker ###
+# Ignore Docker specific files
+.docker/
+
+# ### Logs ###
+*.log
+*.out
+
+# ### Application-specific files ###
+/*.env         # Ignore the environment file if not meant to be pushed to version control
+*.pid          # Process ID files
