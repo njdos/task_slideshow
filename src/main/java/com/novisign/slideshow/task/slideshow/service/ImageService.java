@@ -18,7 +18,7 @@ public class ImageService {
     @Autowired
     public ImageService(DatabaseAPI databaseAPI, ImageProcessor imageProcessor) {
         this.databaseAPI = databaseAPI;
-        this.imageProcessor = imageProcessor;
+        this.imageProcessor =    imageProcessor;
     }
 
     public Mono<ApiResponse> addImage(AddImageRequest request) {

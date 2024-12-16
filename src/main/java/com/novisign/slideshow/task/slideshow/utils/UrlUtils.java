@@ -1,6 +1,7 @@
 package com.novisign.slideshow.task.slideshow.utils;
 
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
+import lombok.NonNull;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;

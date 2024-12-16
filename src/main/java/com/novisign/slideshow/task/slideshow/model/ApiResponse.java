@@ -19,8 +19,8 @@ public class ApiResponse {
         this.data = data;
     }
 
-    public static ApiResponse success(StatusCodes errorCode, List<Map<String, Object>> data) {
-        return new ApiResponse(errorCode, data);
+    public static ApiResponse success(StatusCodes statusCodes, List<Map<String, Object>> data) {
+        return new ApiResponse(statusCodes, data);
     }
 
     public static ApiResponse error(StatusCodes errorCode) {
