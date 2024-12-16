@@ -7,6 +7,12 @@ public enum ImageSearchEngineQuery {
             VALUES (:value, :type, :imageId)
             RETURNING id
             """
+    ),
+    GET_IMAGE_SEARCH_BY_IMAGE_ID(
+            "SELECT id FROM image_search_engine WHERE image_id = :image_id"
+    ),
+    DELETE_IMAGE_SEARCH_BY_ID(
+            "DELETE FROM image_search_engine WHERE id = :id"
     );
 
     private final String query;

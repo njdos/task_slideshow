@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
+
 @Service
 public class ImageService {
 
@@ -22,7 +24,7 @@ public class ImageService {
     }
 
     public Mono<ApiResponse> addImage(AddImageRequest request) {
-        return databaseAPI.findByUrl(request.url())
+        return databaseAPI.findImageByUrl(request.url())
                 .hasElement()
                 .flatMap(exists -> exists
                         ? Mono.just(ApiResponse.error(StatusCodes.ALREADY_EXISTS))
@@ -31,4 +33,11 @@ public class ImageService {
                 .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
     }
 
+    public Mono<ApiResponse> deleteImageById(Long id) {
+        return databaseAPI.deleteImageById(id)
+                .flatMap(deleted -> deleted
+                        ? Mono.just(ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList()))
+                        : Mono.just(ApiResponse.error(StatusCodes.NOT_FOUND)))
+                .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
+    }
 }

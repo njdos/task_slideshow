@@ -34,4 +34,25 @@ public class ImageHandler {
                         .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST)));
     }
 
+    public Mono<ServerResponse> deleteImage(ServerRequest request) {
+        return Mono.justOrEmpty(request.pathVariable("id"))
+                .flatMap(id -> {
+                    try {
+                        Long imageId = Long.valueOf(id);
+                        return imageService.deleteImageById(imageId);
+                    } catch (NumberFormatException e) {
+                        return Mono.just(ApiResponse.error(StatusCodes.INVALID_REQUEST));
+                    }
+                })
+                .flatMap(apiResponse -> {
+                    HttpStatus status = apiResponse.getCode() == HttpStatus.NO_CONTENT.value()
+                            ? HttpStatus.NO_CONTENT
+                            : HttpStatus.BAD_REQUEST;
+
+                    return ServerResponse.status(status).bodyValue(apiResponse);
+                })
+                .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
+                        .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST)));
+    }
+
 }

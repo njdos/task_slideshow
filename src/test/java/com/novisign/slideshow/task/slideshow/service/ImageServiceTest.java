@@ -13,7 +13,6 @@ import org.mockito.MockitoAnnotations;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ImageServiceTest {
@@ -35,7 +34,7 @@ class ImageServiceTest {
     @Test
     void testAddImage_alreadyExists() {
         AddImageRequest request = new AddImageRequest("https://example.com/image.png", 10);
-        when(databaseAPI.findByUrl(request.url())).thenReturn(Mono.just(new Image()));
+        when(databaseAPI.findImageByUrl(request.url())).thenReturn(Mono.just(new Image()));
 
         Mono<ApiResponse> result = imageService.addImage(request);
 
@@ -43,14 +42,14 @@ class ImageServiceTest {
                 .expectNextMatches(response -> response.getCode() == StatusCodes.ALREADY_EXISTS.getCode())
                 .verifyComplete();
 
-        verify(databaseAPI, times(1)).findByUrl(request.url());
+        verify(databaseAPI, times(1)).findImageByUrl(request.url());
         verifyNoInteractions(imageProcessor);
     }
 
     @Test
     void testAddImage_processNewImage() {
         AddImageRequest request = new AddImageRequest("https://example.com/image.png", 10);
-        when(databaseAPI.findByUrl(request.url())).thenReturn(Mono.empty());
+        when(databaseAPI.findImageByUrl(request.url())).thenReturn(Mono.empty());
         ApiResponse successResponse = ApiResponse.success(StatusCodes.SUCCESS, null);
         when(imageProcessor.processNewImage(request)).thenReturn(Mono.just(successResponse));
 
@@ -60,14 +59,14 @@ class ImageServiceTest {
                 .expectNextMatches(response -> response.getCode() == StatusCodes.SUCCESS.getCode())
                 .verifyComplete();
 
-        verify(databaseAPI, times(1)).findByUrl(request.url());
+        verify(databaseAPI, times(1)).findImageByUrl(request.url());
         verify(imageProcessor, times(1)).processNewImage(request);
     }
 
     @Test
     void testAddImage_databaseError() {
         AddImageRequest request = new AddImageRequest("https://example.com/image.png", 10);
-        when(databaseAPI.findByUrl(request.url())).thenReturn(Mono.error(new RuntimeException("Database error")));
+        when(databaseAPI.findImageByUrl(request.url())).thenReturn(Mono.error(new RuntimeException("Database error")));
 
         Mono<ApiResponse> result = imageService.addImage(request);
 
@@ -75,7 +74,7 @@ class ImageServiceTest {
                 .expectNextMatches(response -> response.getCode() == StatusCodes.DATABASE_OPERATION_FAILED.getCode())
                 .verifyComplete();
 
-        verify(databaseAPI, times(1)).findByUrl(request.url());
+        verify(databaseAPI, times(1)).findImageByUrl(request.url());
         verifyNoInteractions(imageProcessor);
     }
 }

@@ -3,7 +3,7 @@ package com.novisign.slideshow.task.slideshow.constant;
 public enum StatusCodes {
 
     OK(200, "Ok"),
-    SUCCESS(201, "Successfully added"),
+    SUCCESS(201, "Successfully processed operation"),
     FAILED_VALIDATION(1000, "Failed validation"),
     FAILED_VALIDATION_IMAGE(1001, "Failed validation image type or content"),
     FAILED_VALIDATION_DURATION(1002, "Failed validation duration of image"),
@@ -13,7 +13,8 @@ public enum StatusCodes {
     INVALID_REQUEST(4001, "Invalid request format"),
     INTERNAL_SERVER_ERROR(5000, "Internal Server Error"),
     DATABASE_OPERATION_FAILED(5001, "Database Operation Failed"),
-    LOADING_FILE_FAILED(5002, "Error loading file");
+    LOADING_FILE_FAILED(5002, "Error loading file"),
+    NOT_FOUND(6001, "Image not found");
 
     private final int code;
     private final String message;

@@ -25,8 +25,12 @@ public class DatabaseAPI {
         return databaseService.saveNewImageWithKeywords(image, keywords);
     }
 
-    public Mono<Image> findByUrl(String imageUrl) {
-        return imageRepository.findByUrl(imageUrl);
+    public Mono<Image> findImageByUrl(String imageUrl) {
+        return imageRepository.findImageByUrl(imageUrl);
+    }
+
+    public Mono<Boolean> deleteImageById(Long id) {
+        return databaseService.deleteImageById(id);
     }
 
 }

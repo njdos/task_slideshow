@@ -10,6 +10,9 @@ public enum ImageQuery {
             VALUES (:url, :duration, :type, :addedTime)
             RETURNING id
             """
+    ),
+    DELETE_IMAGE_BY_ID(
+            "DELETE FROM image WHERE id = :id"
     );
 
     private final String query;

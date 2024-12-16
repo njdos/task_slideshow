@@ -18,11 +18,12 @@ public class ImageRepository {
         this.databaseClient = databaseClient;
     }
 
-    public Mono<Image> findByUrl(String url) {
+    public Mono<Image> findImageByUrl(String url) {
         return databaseClient.sql(ImageQuery.GET_IMAGE_BY_URL.getQuery())
                 .bind("url", url)
                 .map(Mapper.mapRowToImage)
-                .one();
+                .one()
+                .onErrorResume(e -> Mono.empty());
     }
 
     public Mono<Long> save(Image image) {
@@ -32,6 +33,18 @@ public class ImageRepository {
                 .bind("type", image.getType())
                 .bind("addedTime", image.getAddedTime())
                 .map(Mapper.mapRowToId)
-                .one();
+                .one()
+                .onErrorReturn(-1L);
     }
+
+    public Mono<Boolean> deleteById(Long id) {
+        return databaseClient.sql(ImageQuery.DELETE_IMAGE_BY_ID.getQuery())
+                .bind("id", id)
+                .fetch()
+                .rowsUpdated()
+                .map(rowsUpdated -> rowsUpdated > 0)
+                .onErrorReturn(false);
+    }
+
+
 }

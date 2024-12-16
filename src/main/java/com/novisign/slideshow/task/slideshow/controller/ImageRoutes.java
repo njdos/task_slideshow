@@ -29,6 +29,7 @@ public class ImageRoutes {
                 .nest(RequestPredicates.path("/api/" + apiVersion.getVersion()),
                         builder -> builder
                                 .POST("/addImage", imageHandler::addImage)
+                                .POST("/deleteImage/{id}", imageHandler::deleteImage)
                 )
                 .build();
     }

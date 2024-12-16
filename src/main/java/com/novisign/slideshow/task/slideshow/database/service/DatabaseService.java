@@ -63,4 +63,22 @@ public class DatabaseService {
                 .map(id -> id > 0)
                 .defaultIfEmpty(false);
     }
+
+    @Transactional
+    public Mono<Boolean> deleteImageById(Long imageId) {
+        return imageSearchEngineRepository.findIdsImageSearchByImageId(imageId)
+                .collectList()
+                .flatMap(ids -> {
+                    if (ids.isEmpty()) {
+                        return imageRepository.deleteById(imageId);
+                    } else {
+                        return Flux.fromIterable(ids)
+                                .flatMap(imageSearchEngineRepository::deleteById)
+                                .collectList()
+                                .flatMap(results -> imageRepository.deleteById(imageId));
+                    }
+                })
+                .onErrorReturn(false);
+    }
+
 }

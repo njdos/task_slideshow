@@ -2,10 +2,12 @@ package com.novisign.slideshow.task.slideshow.database.repository;
 
 import com.novisign.slideshow.task.slideshow.database.query.ImageSearchEngineQuery;
 import com.novisign.slideshow.task.slideshow.entity.ImageSearchEngine;
+import com.novisign.slideshow.task.slideshow.exception.CustomDatabaseException;
 import com.novisign.slideshow.task.slideshow.mapper.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Repository
@@ -28,5 +30,22 @@ public class ImageSearchEngineRepository {
                 .onErrorReturn(-1L);
     }
 
+    public Flux<Long> findIdsImageSearchByImageId(Long imageId) {
+        return databaseClient.sql(ImageSearchEngineQuery.GET_IMAGE_SEARCH_BY_IMAGE_ID.getQuery())
+                .bind("image_id", imageId)
+                .map(Mapper.mapRowToId)
+                .all()
+                .onErrorResume(e -> Flux.error(new CustomDatabaseException("Error while querying the database", e)))
+                .switchIfEmpty(Flux.defer(() -> Flux.empty()));
+    }
+
+    public Flux<Long> deleteById(Long id) {
+        return databaseClient.sql(ImageSearchEngineQuery.DELETE_IMAGE_SEARCH_BY_ID.getQuery())
+                .bind("id", id)
+                .map(Mapper.mapRowToId)
+                .all()
+                .onErrorResume(e -> Flux.error(new CustomDatabaseException("Error while querying the database", e)))
+                .switchIfEmpty(Flux.defer(() -> Flux.empty()));
+    }
 
 }
