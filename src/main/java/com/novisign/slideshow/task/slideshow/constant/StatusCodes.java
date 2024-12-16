@@ -12,7 +12,8 @@ public enum StatusCodes {
     ALREADY_EXISTS(4000, "Already exists"),
     INVALID_REQUEST(4001, "Invalid request format"),
     INTERNAL_SERVER_ERROR(5000, "Internal Server Error"),
-    DATABASE_OPERATION_FAILED(5001, "Database Operation Failed");
+    DATABASE_OPERATION_FAILED(5001, "Database Operation Failed"),
+    LOADING_FILE_FAILED(5002, "Error loading file");
 
     private final int code;
     private final String message;

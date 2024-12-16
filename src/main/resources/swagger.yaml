@@ -1,0 +1,83 @@
+openapi: 3.0.0
+info:
+  title: Slideshow Management API
+  version: 1.0.0
+  description:
+    This API allows users to manage a list of image URLs and play a slideshow with transitions.
+    It includes operations to add, delete, and search for images and slideshows, as well as to track
+    "proof-of-play" events when images in a slideshow change.
+  contact:
+    email: 03njdos@gmail.com
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+paths:
+  /api/{vers}/addImage:
+    post:
+      tags:
+        - Image Management
+      summary: Add a new image to the system
+      description: Add a new image URL with a specified duration. Validates if the URL points to a valid image.
+      operationId: addImage
+      parameters:
+        - name: vers
+          in: path
+          description: API version
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - url
+                - duration
+              properties:
+                url:
+                  type: string
+                  example: https://example.com/image.jpg
+                  description: URL of the image.
+                duration:
+                  type: integer
+                  example: 30
+                  description: Duration (in seconds) for which the image will be displayed in the slideshow.
+      responses:
+        '201':
+          description: Image successfully added.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                        duration:
+                          type: integer
+                  status:
+                    type: string
+                    example: success
+                  code:
+                    type: integer
+                    example: 201
+                  message:
+                    type: string
+                    example: Successfully added the image.
+
+components:
+  schemas:
+    Image:
+      type: object
+      properties:
+        url:
+          type: string
+        duration:
+          type: integer
