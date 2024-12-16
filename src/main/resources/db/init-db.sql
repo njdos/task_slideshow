@@ -1,7 +1,7 @@
 CREATE TABLE image
 (
     id         BIGSERIAL PRIMARY KEY,
-    url        VARCHAR(255) NOT NULL,
+    url        VARCHAR(255) NOT NULL UNIQUE,
     duration   INT,
     type       VARCHAR(50),
     added_time TIMESTAMP    NOT NULL
