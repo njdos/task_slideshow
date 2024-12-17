@@ -30,7 +30,9 @@ public class ImageService {
                         ? Mono.just(ApiResponse.error(StatusCodes.ALREADY_EXISTS))
                         : imageProcessor.processNewImage(request)
                 )
-                .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
+                .onErrorResume(error ->
+                        Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED))
+                );
     }
 
     public Mono<ApiResponse> deleteImageById(Long id) {

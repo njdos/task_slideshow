@@ -58,4 +58,5 @@ public class ApiResponse {
     public void setData(List<Map<String, Object>> data) {
         this.data = data;
     }
+
 }

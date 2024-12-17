@@ -2,6 +2,7 @@ package com.novisign.slideshow.task.slideshow.database.repository;
 
 import com.novisign.slideshow.task.slideshow.database.query.ImageQuery;
 import com.novisign.slideshow.task.slideshow.entity.Image;
+import com.novisign.slideshow.task.slideshow.exception.CustomDatabaseException;
 import com.novisign.slideshow.task.slideshow.mapper.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.r2dbc.core.DatabaseClient;
@@ -23,7 +24,7 @@ public class ImageRepository {
                 .bind("url", url)
                 .map(Mapper.mapRowToImage)
                 .one()
-                .onErrorResume(e -> Mono.empty());
+                .onErrorMap(e -> new CustomDatabaseException("Error while querying the database", e));
     }
 
     public Mono<Long> save(Image image) {

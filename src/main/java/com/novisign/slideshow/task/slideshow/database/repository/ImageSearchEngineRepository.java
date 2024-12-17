@@ -35,8 +35,8 @@ public class ImageSearchEngineRepository {
                 .bind("image_id", imageId)
                 .map(Mapper.mapRowToId)
                 .all()
-                .onErrorResume(e -> Flux.error(new CustomDatabaseException("Error while querying the database", e)))
-                .switchIfEmpty(Flux.defer(() -> Flux.empty()));
+                .doOnError(e -> System.err.println("Error while querying the database: " + e.getMessage()))
+                .onErrorResume(e -> Flux.error(new CustomDatabaseException("Error while querying the database", e)));
     }
 
     public Flux<Long> deleteById(Long id) {
