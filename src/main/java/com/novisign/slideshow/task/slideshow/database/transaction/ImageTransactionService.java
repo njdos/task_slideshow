@@ -1,4 +1,4 @@
-package com.novisign.slideshow.task.slideshow.database.service;
+package com.novisign.slideshow.task.slideshow.database.transaction;
 
 import com.novisign.slideshow.task.slideshow.constant.ImageSearchTypes;
 import com.novisign.slideshow.task.slideshow.database.repository.ImageRepository;
@@ -14,12 +14,12 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Service
-public class DatabaseTransactionService {
+public class ImageTransactionService {
 
     @Autowired
-    public DatabaseTransactionService(ImageRepository imageRepository,
-                                      ImageSearchEngineRepository imageSearchEngineRepository,
-                                      EntityFactory entityFactory) {
+    public ImageTransactionService(ImageRepository imageRepository,
+                                   ImageSearchEngineRepository imageSearchEngineRepository,
+                                   EntityFactory entityFactory) {
         this.imageRepository = imageRepository;
         this.imageSearchEngineRepository = imageSearchEngineRepository;
         this.entityFactory = entityFactory;
@@ -27,6 +27,7 @@ public class DatabaseTransactionService {
 
     private final ImageRepository imageRepository;
     private final ImageSearchEngineRepository imageSearchEngineRepository;
+
     private final EntityFactory entityFactory;
 
     @Transactional
@@ -43,25 +44,6 @@ public class DatabaseTransactionService {
                             });
                 })
                 .onErrorResume(error -> Mono.just(false));
-    }
-
-
-    private Mono<Boolean> saveKeywords(Long imageId, List<String> keywords) {
-        return Flux.fromIterable(keywords)
-                .flatMap(keyword -> {
-                    var entity = entityFactory.createImageSearchEntity(keyword, ImageSearchTypes.KEYWORD, imageId);
-                    return imageSearchEngineRepository.save(entity)
-                            .map(id -> id > 0);
-                })
-                .all(Boolean::booleanValue)
-                .defaultIfEmpty(false);
-    }
-
-    private Mono<Boolean> saveDuration(Long imageId, String duration) {
-        var entity = entityFactory.createImageSearchEntity(duration, ImageSearchTypes.DURATION, imageId);
-        return imageSearchEngineRepository.save(entity)
-                .map(id -> id > 0)
-                .defaultIfEmpty(false);
     }
 
     @Transactional
@@ -81,4 +63,21 @@ public class DatabaseTransactionService {
                 .onErrorReturn(false);
     }
 
+    private Mono<Boolean> saveKeywords(Long imageId, List<String> keywords) {
+        return Flux.fromIterable(keywords)
+                .flatMap(keyword -> {
+                    var entity = entityFactory.createImageSearchEntity(keyword, ImageSearchTypes.KEYWORD, imageId);
+                    return imageSearchEngineRepository.save(entity)
+                            .map(id -> id > 0);
+                })
+                .all(Boolean::booleanValue)
+                .defaultIfEmpty(false);
+    }
+
+    private Mono<Boolean> saveDuration(Long imageId, String duration) {
+        var entity = entityFactory.createImageSearchEntity(duration, ImageSearchTypes.DURATION, imageId);
+        return imageSearchEngineRepository.save(entity)
+                .map(id -> id > 0)
+                .defaultIfEmpty(false);
+    }
 }

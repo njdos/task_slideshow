@@ -24,6 +24,10 @@ public class Validator {
                 .onErrorResume(throwable -> Mono.just(ApiResponse.error(StatusCodes.FAILED_VALIDATION)));
     }
 
+    public Mono<Boolean> validateDuration(int duration) {
+        return Mono.just(duration > 0 && duration <= MAX_DURATION);
+    }
+
     public Mono<ApiResponse> validateDuration(int duration, ApiResponse validationResponse) {
         boolean isValidDuration = duration > 0 && duration <= MAX_DURATION;
         return isValidDuration

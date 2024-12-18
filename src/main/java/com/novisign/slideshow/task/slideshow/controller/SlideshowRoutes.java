@@ -25,12 +25,12 @@ public class SlideshowRoutes {
     private final SlideshowHandler slideshowHandler;
 
     @Bean
-    public RouterFunction<ServerResponse> imageRouter() {
+    public RouterFunction<ServerResponse> slideshowRouter() {
         return route()
                 .nest(RequestPredicates.path("/api/" + apiVersion.getVersion()),
                         builder -> builder
                                 .POST("/addSlideshow", slideshowHandler::addSlideshow)
-                                .DELETE ("/deleteSlideshow/{id}", slideshowHandler::deleteSlideshow)
+//                                .DELETE ("/deleteSlideshow/{id}", slideshowHandler::deleteSlideshow)
                 )
                 .build();
     }

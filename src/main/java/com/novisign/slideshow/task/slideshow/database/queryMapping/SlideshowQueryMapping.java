@@ -6,32 +6,20 @@ import io.r2dbc.spi.RowMetadata;
 
 import java.util.function.BiFunction;
 
-public enum ImageQueryMapping implements QueryMapping {
+public enum SlideshowQueryMapping implements QueryMapping {
 
-    GET_IMAGE_BY_URL(
-            "SELECT * FROM image WHERE url = :url",
-            Mapper.mapRowToImage
-    ),
-    GET_IMAGE_ID_AND_DURATION_BY_IDs(
-            "SELECT id, duration FROM image WHERE id IN (:ids)",
-            Mapper.mapRowToImageIdAndDuration
-    ),
-    CREATE_IMAGE("""
-            INSERT INTO image (url, duration, type, added_time)
-            VALUES (:url, :duration, :type, :addedTime)
+    CREATE_SLIDESHOW("""
+            INSERT INTO slideshow (name, created_time)
+            VALUES (:name, :created_time)
             RETURNING id
             """,
             Mapper.mapRowToId
-    ),
-    DELETE_IMAGE_BY_ID(
-            "DELETE FROM image WHERE id = :id",
-            null
     );
 
     private final String query;
     private final BiFunction<Row, RowMetadata, ?> mapping;
 
-    ImageQueryMapping(String query, BiFunction<Row, RowMetadata, ?> mapping) {
+    SlideshowQueryMapping(String query, BiFunction<Row, RowMetadata, ?> mapping) {
         this.query = query;
         this.mapping = mapping;
     }

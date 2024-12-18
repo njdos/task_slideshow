@@ -19,6 +19,14 @@ public class Mapper {
                 return image;
             };
 
+    public static final BiFunction<Row, RowMetadata, Image> mapRowToImageIdAndDuration =
+            (row, rowMetaData) -> {
+                Image image = new Image();
+                image.setId(row.get("id", Long.class));
+                image.setDuration(row.get("duration", Integer.class));
+                return image;
+            };
+
     public static final BiFunction<Row, RowMetadata, Long> mapRowToId =
             (row, rowMetaData) -> row.get("id", Long.class);
 

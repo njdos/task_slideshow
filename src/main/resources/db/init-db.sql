@@ -11,7 +11,7 @@ CREATE TABLE image_search_engine
 (
     id       BIGSERIAL PRIMARY KEY,
     value    VARCHAR(255) NOT NULL,
-    type     VARCHAR(50),
+    type     VARCHAR(50)  NOT NULL,
     image_id BIGINT       NOT NULL,
     CONSTRAINT fk_image_id FOREIGN KEY (image_id) REFERENCES image (id)
 );
@@ -19,7 +19,8 @@ CREATE TABLE image_search_engine
 CREATE TABLE slideshow
 (
     id           BIGSERIAL PRIMARY KEY,
-    created_time TIMESTAMP NOT NULL
+    name         VARCHAR(50) NOT NULL,
+    created_time TIMESTAMP   NOT NULL
 );
 
 CREATE TABLE slideshow_image
