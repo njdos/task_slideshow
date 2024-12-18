@@ -19,9 +19,9 @@ import java.util.Optional;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class ImageValidatorTest {
+class ValidatorTest {
 
-    private ImageValidator imageValidator;
+    private Validator validator;
 
     @Mock
     private ClientResponse mockClientResponse;
@@ -29,7 +29,7 @@ class ImageValidatorTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        imageValidator = new ImageValidator();
+        validator = new Validator();
     }
 
     @Test
@@ -41,7 +41,7 @@ class ImageValidatorTest {
         when(mockHeaders.asHttpHeaders()).thenReturn(headers);
         when(mockClientResponse.headers()).thenReturn(mockHeaders);
 
-        var responseMono = (Mono<ApiResponse>) invokePrivateMethod(imageValidator,
+        var responseMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
                 "validateImage",
                 new Class<?>[]{Mono.class},
                 new Object[]{Mono.just(mockClientResponse)});
@@ -63,7 +63,7 @@ class ImageValidatorTest {
         when(mockHeaders.asHttpHeaders()).thenReturn(headers);
         when(mockClientResponse.headers()).thenReturn(mockHeaders);
 
-        var responseMono = (Mono<ApiResponse>) invokePrivateMethod(imageValidator,
+        var responseMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
                 "validate",
                 new Class<?>[]{Mono.class, int.class},
                 new Object[]{Mono.just(mockClientResponse), 5000});
@@ -84,7 +84,7 @@ class ImageValidatorTest {
         when(mockHeaders.asHttpHeaders()).thenReturn(headers);
         when(mockClientResponse.headers()).thenReturn(mockHeaders);
 
-        var responseMono = (Mono<ApiResponse>) invokePrivateMethod(imageValidator,
+        var responseMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
                 "validateImage",
                 new Class<?>[]{Mono.class},
                 new Object[]{Mono.just(mockClientResponse)});
@@ -100,7 +100,7 @@ class ImageValidatorTest {
     void testValidate_errorDuringValidation() throws Exception {
         when(mockClientResponse.headers()).thenThrow(new RuntimeException("Processing error"));
 
-        var responseMono = (Mono<ApiResponse>) invokePrivateMethod(imageValidator,
+        var responseMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
                 "validate",
                 new Class<?>[]{Mono.class, int.class},
                 new Object[]{Mono.just(mockClientResponse), 500});
@@ -121,7 +121,7 @@ class ImageValidatorTest {
         when(mockHeaders.asHttpHeaders()).thenReturn(headers);
         when(mockClientResponse.headers()).thenReturn(mockHeaders);
 
-        Mono<ApiResponse> responseMono = (Mono<ApiResponse>) invokePrivateMethod(imageValidator,
+        Mono<ApiResponse> responseMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
                 "validateImage",
                 new Class<?>[]{Mono.class},
                 new Object[]{Mono.just(mockClientResponse)});
@@ -143,7 +143,7 @@ class ImageValidatorTest {
         when(mockHeaders.asHttpHeaders()).thenReturn(headers);
         when(mockClientResponse.headers()).thenReturn(mockHeaders);
 
-        Mono<ApiResponse> responseMono = (Mono<ApiResponse>) invokePrivateMethod(imageValidator,
+        Mono<ApiResponse> responseMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
                 "validateImage",
                 new Class<?>[]{Mono.class},
                 new Object[]{Mono.just(mockClientResponse)});
@@ -159,7 +159,7 @@ class ImageValidatorTest {
     void testValidateImage_errorProcessing() throws Exception {
         when(mockClientResponse.headers()).thenThrow(new RuntimeException("Processing error"));
 
-        Mono<ApiResponse> responseMono = (Mono<ApiResponse>) invokePrivateMethod(imageValidator,
+        Mono<ApiResponse> responseMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
                 "validateImage",
                 new Class<?>[]{Mono.class},
                 new Object[]{Mono.just(mockClientResponse)});
@@ -181,7 +181,7 @@ class ImageValidatorTest {
         when(mockHeaders.asHttpHeaders()).thenReturn(headers);
         when(mockClientResponse.headers()).thenReturn(mockHeaders);
 
-        var responseMono = (Mono<ApiResponse>) invokePrivateMethod(imageValidator,
+        var responseMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
                 "processClientResponse",
                 new Class<?>[]{ClientResponse.class},
                 new Object[]{mockClientResponse});
@@ -201,7 +201,7 @@ class ImageValidatorTest {
         when(mockHeaders.asHttpHeaders()).thenReturn(headers);
         when(mockClientResponse.headers()).thenReturn(mockHeaders);
 
-        var responseMono = (Mono<ApiResponse>) invokePrivateMethod(imageValidator,
+        var responseMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
                 "processClientResponse",
                 new Class<?>[]{ClientResponse.class},
                 new Object[]{mockClientResponse});
@@ -220,7 +220,7 @@ class ImageValidatorTest {
         when(mockHeaders.asHttpHeaders()).thenReturn(headers);
         when(mockClientResponse.headers()).thenReturn(mockHeaders);
 
-        var responseMono = (Mono<ApiResponse>) invokePrivateMethod(imageValidator,
+        var responseMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
                 "processClientResponse",
                 new Class<?>[]{ClientResponse.class},
                 new Object[]{mockClientResponse});
@@ -237,7 +237,7 @@ class ImageValidatorTest {
     void testValidateContentType_validImageType() throws Exception {
         var type = "image/png";
 
-        var resultMono = (Mono<Optional<String>>) invokePrivateMethod(imageValidator,
+        var resultMono = (Mono<Optional<String>>) invokePrivateMethod(validator,
                 "validateContentType",
                 new Class<?>[]{List.class},
                 new Object[]{List.of(type)});
@@ -249,7 +249,7 @@ class ImageValidatorTest {
 
     @Test
     void testValidateContentType_invalidImageType() throws Exception {
-        var resultMono = (Mono<Optional<String>>) invokePrivateMethod(imageValidator,
+        var resultMono = (Mono<Optional<String>>) invokePrivateMethod(validator,
                 "validateContentType",
                 new Class<?>[]{List.class},
                 new Object[]{List.of("text/plain")});
@@ -263,7 +263,7 @@ class ImageValidatorTest {
     void testValidateDuration_validDuration() throws Exception {
         ApiResponse validationResponse = ApiResponse.success(StatusCodes.OK, List.of());
 
-        var resultMono = (Mono<ApiResponse>) invokePrivateMethod(imageValidator,
+        var resultMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
                 "validateDuration",
                 new Class<?>[]{int.class, ApiResponse.class},
                 new Object[]{1000, validationResponse});
@@ -277,7 +277,7 @@ class ImageValidatorTest {
     void testValidateDuration_invalidDuration() throws Exception {
         ApiResponse validationResponse = ApiResponse.success(StatusCodes.OK, List.of());
 
-        var resultMono = (Mono<ApiResponse>) invokePrivateMethod(imageValidator,
+        var resultMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
                 "validateDuration",
                 new Class<?>[]{int.class, ApiResponse.class},
                 new Object[]{4000, validationResponse});

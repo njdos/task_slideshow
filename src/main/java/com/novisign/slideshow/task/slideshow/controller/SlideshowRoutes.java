@@ -2,6 +2,7 @@ package com.novisign.slideshow.task.slideshow.controller;
 
 import com.novisign.slideshow.task.slideshow.constant.ApiVersion;
 import com.novisign.slideshow.task.slideshow.handler.ImageHandler;
+import com.novisign.slideshow.task.slideshow.handler.SlideshowHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,24 +13,24 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
-public class ImageRoutes {
+public class SlideshowRoutes {
 
     @Autowired
-    public ImageRoutes(ApiVersion apiVersion, ImageHandler imageHandler) {
+    public SlideshowRoutes(ApiVersion apiVersion, SlideshowHandler slideshowHandler) {
         this.apiVersion = apiVersion;
-        this.imageHandler = imageHandler;
+        this.slideshowHandler = slideshowHandler;
     }
 
     private final ApiVersion apiVersion;
-    private final ImageHandler imageHandler;
+    private final SlideshowHandler slideshowHandler;
 
     @Bean
     public RouterFunction<ServerResponse> imageRouter() {
         return route()
                 .nest(RequestPredicates.path("/api/" + apiVersion.getVersion()),
                         builder -> builder
-                                .POST("/addImage", imageHandler::addImage)
-                                .DELETE("/deleteImage/{id}", imageHandler::deleteImage)
+                                .POST("/addSlideshow", slideshowHandler::addSlideshow)
+                                .DELETE ("/deleteSlideshow/{id}", slideshowHandler::deleteSlideshow)
                 )
                 .build();
     }
