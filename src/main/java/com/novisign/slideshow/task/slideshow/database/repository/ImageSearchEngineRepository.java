@@ -1,11 +1,9 @@
 package com.novisign.slideshow.task.slideshow.database.repository;
 
-import com.novisign.slideshow.task.slideshow.database.query.ImageSearchEngineQuery;
+import com.novisign.slideshow.task.slideshow.database.helper.DatabaseHelper;
+import com.novisign.slideshow.task.slideshow.database.queryMapping.ImageSearchEngineQuery;
 import com.novisign.slideshow.task.slideshow.entity.ImageSearchEngine;
-import com.novisign.slideshow.task.slideshow.exception.CustomDatabaseException;
-import com.novisign.slideshow.task.slideshow.mapper.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -13,39 +11,38 @@ import reactor.core.publisher.Mono;
 @Repository
 public class ImageSearchEngineRepository {
 
-    private final DatabaseClient databaseClient;
+    private final DatabaseHelper databaseHelper;
 
     @Autowired
-    public ImageSearchEngineRepository(DatabaseClient databaseClient) {
-        this.databaseClient = databaseClient;
+    public ImageSearchEngineRepository(DatabaseHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
     }
 
+
     public Mono<Long> save(ImageSearchEngine imageSearchEngine) {
-        return databaseClient.sql(ImageSearchEngineQuery.CREATE_IMAGE_SEARCH.getQuery())
-                .bind("value", imageSearchEngine.getValue())
-                .bind("type", imageSearchEngine.getType())
-                .bind("imageId", imageSearchEngine.getImageId())
-                .map(Mapper.mapRowToId)
-                .one()
-                .onErrorReturn(-1L);
+        return databaseHelper.executeSaveOperation(
+                ImageSearchEngineQuery.CREATE_IMAGE_SEARCH,
+                spec -> spec.bind("value", imageSearchEngine.getValue())
+                        .bind("type", imageSearchEngine.getType())
+                        .bind("imageId", imageSearchEngine.getImageId()),
+                "saving the image search engine"
+        );
     }
 
     public Flux<Long> findIdsImageSearchByImageId(Long imageId) {
-        return databaseClient.sql(ImageSearchEngineQuery.GET_IMAGE_SEARCH_BY_IMAGE_ID.getQuery())
-                .bind("image_id", imageId)
-                .map(Mapper.mapRowToId)
-                .all()
-                .doOnError(e -> System.err.println("Error while querying the database: " + e.getMessage()))
-                .onErrorResume(e -> Flux.error(new CustomDatabaseException("Error while querying the database", e)));
+        return databaseHelper.executeForMany(
+                ImageSearchEngineQuery.GET_IMAGE_SEARCH_BY_IMAGE_ID,
+                spec -> spec.bind("image_id", imageId),
+                "fetching image search engine by image id"
+        );
     }
 
-    public Flux<Long> deleteById(Long id) {
-        return databaseClient.sql(ImageSearchEngineQuery.DELETE_IMAGE_SEARCH_BY_ID.getQuery())
-                .bind("id", id)
-                .map(Mapper.mapRowToId)
-                .all()
-                .onErrorResume(e -> Flux.error(new CustomDatabaseException("Error while querying the database", e)))
-                .switchIfEmpty(Flux.defer(() -> Flux.empty()));
+    public Mono<Boolean> deleteById(Long id) {
+        return databaseHelper.executeDeleteOperation(
+                ImageSearchEngineQuery.DELETE_IMAGE_SEARCH_BY_ID,
+                spec -> spec.bind("id", id),
+                "deleting image search engine"
+        );
     }
 
 }

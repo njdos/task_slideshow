@@ -14,7 +14,8 @@ public enum StatusCodes {
     INTERNAL_SERVER_ERROR(5000, "Internal Server Error"),
     DATABASE_OPERATION_FAILED(5001, "Database Operation Failed"),
     LOADING_FILE_FAILED(5002, "Error loading file"),
-    NOT_FOUND(6001, "Image not found");
+    NOT_FOUND(6001, "Image not found"),
+    MAPPING_ERROR(6002, "Error occurred while mapping data");
 
     private final int code;
     private final String message;

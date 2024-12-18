@@ -14,12 +14,12 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Service
-public class DatabaseService {
+public class DatabaseTransactionService {
 
     @Autowired
-    public DatabaseService(ImageRepository imageRepository,
-                           ImageSearchEngineRepository imageSearchEngineRepository,
-                           EntityFactory entityFactory) {
+    public DatabaseTransactionService(ImageRepository imageRepository,
+                                      ImageSearchEngineRepository imageSearchEngineRepository,
+                                      EntityFactory entityFactory) {
         this.imageRepository = imageRepository;
         this.imageSearchEngineRepository = imageSearchEngineRepository;
         this.entityFactory = entityFactory;

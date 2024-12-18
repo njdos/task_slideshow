@@ -32,11 +32,12 @@ public class GlobalExceptionHandler implements WebExceptionHandler {
         ApiResponse response;
 
         String requestUrl = exchange.getRequest().getURI().toString();
-        logger.info("Handling error for request URL: {}", requestUrl);
-
         if (ex instanceof CustomDatabaseException) {
             response = ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED);
             logger.error("Database operation failed for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
+        } else if (ex instanceof DataMappingException) {
+            response = ApiResponse.error(StatusCodes.MAPPING_ERROR);
+            logger.error("Data mapping error for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
         } else if (ex instanceof RuntimeException) {
             response = ApiResponse.error(StatusCodes.NOT_FOUND);
             logger.error("Runtime exception occurred for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
@@ -52,7 +53,6 @@ public class GlobalExceptionHandler implements WebExceptionHandler {
 
         byte[] bytes = jsonResponse.getBytes(StandardCharsets.UTF_8);
 
-        // Возвращаем ответ с ошибкой
         return exchange.getResponse().writeWith(
                 Mono.just(exchange.getResponse().bufferFactory().wrap(bytes))
         );

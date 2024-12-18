@@ -1,51 +1,48 @@
 package com.novisign.slideshow.task.slideshow.database.repository;
 
-import com.novisign.slideshow.task.slideshow.database.query.ImageQuery;
+import com.novisign.slideshow.task.slideshow.database.helper.DatabaseHelper;
+import com.novisign.slideshow.task.slideshow.database.queryMapping.ImageQueryMapping;
 import com.novisign.slideshow.task.slideshow.entity.Image;
-import com.novisign.slideshow.task.slideshow.exception.CustomDatabaseException;
-import com.novisign.slideshow.task.slideshow.mapper.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 @Repository
 public class ImageRepository {
 
-    private final DatabaseClient databaseClient;
+    private final DatabaseHelper databaseHelper;
 
     @Autowired
-    public ImageRepository(DatabaseClient databaseClient) {
-        this.databaseClient = databaseClient;
+    public ImageRepository(DatabaseHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
     }
 
+
     public Mono<Image> findImageByUrl(String url) {
-        return databaseClient.sql(ImageQuery.GET_IMAGE_BY_URL.getQuery())
-                .bind("url", url)
-                .map(Mapper.mapRowToImage)
-                .one()
-                .onErrorMap(e -> new CustomDatabaseException("Error while querying the database", e));
+        return databaseHelper.executeForOne(
+                ImageQueryMapping.GET_IMAGE_BY_URL,
+                spec -> spec.bind("url", url),
+                "fetching the image"
+        );
     }
 
     public Mono<Long> save(Image image) {
-        return databaseClient.sql(ImageQuery.CREATE_IMAGE.getQuery())
-                .bind("url", image.getUrl())
-                .bind("duration", image.getDuration())
-                .bind("type", image.getType())
-                .bind("addedTime", image.getAddedTime())
-                .map(Mapper.mapRowToId)
-                .one()
-                .onErrorReturn(-1L);
+        return databaseHelper.executeSaveOperation(
+                ImageQueryMapping.CREATE_IMAGE,
+                spec -> spec.bind("url", image.getUrl())
+                        .bind("duration", image.getDuration())
+                        .bind("type", image.getType())
+                        .bind("addedTime", image.getAddedTime()),
+                "saving the image"
+        );
     }
 
     public Mono<Boolean> deleteById(Long id) {
-        return databaseClient.sql(ImageQuery.DELETE_IMAGE_BY_ID.getQuery())
-                .bind("id", id)
-                .fetch()
-                .rowsUpdated()
-                .map(rowsUpdated -> rowsUpdated > 0)
-                .onErrorReturn(false);
+        return databaseHelper.executeDeleteOperation(
+                ImageQueryMapping.DELETE_IMAGE_BY_ID,
+                spec -> spec.bind("id", id),
+                "deleting the image"
+        );
     }
-
 
 }
