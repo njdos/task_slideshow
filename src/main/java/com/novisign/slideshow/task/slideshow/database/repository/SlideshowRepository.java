@@ -27,4 +27,12 @@ public class SlideshowRepository {
                 "saving slideshow"
         );
     }
+
+    public Mono<Boolean> deleteById(Long id) {
+        return databaseHelper.executeDeleteOperation(
+                SlideshowQueryMapping.DELETE_SLIDESHOW_BY_ID,
+                spec -> spec.bind("id", id),
+                "deleting the slideshow"
+        );
+    }
 }

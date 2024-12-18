@@ -14,6 +14,10 @@ public enum SlideshowQueryMapping implements QueryMapping {
             RETURNING id
             """,
             Mapper.mapRowToId
+    ),
+    DELETE_SLIDESHOW_BY_ID(
+            "DELETE FROM slideshow WHERE id = :id",
+            null
     );
 
     private final String query;

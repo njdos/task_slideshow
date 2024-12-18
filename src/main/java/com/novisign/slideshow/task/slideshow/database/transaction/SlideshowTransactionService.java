@@ -14,7 +14,8 @@ import java.util.Map;
 public class SlideshowTransactionService {
 
     @Autowired
-    public SlideshowTransactionService(SlideshowRepository slideshowRepository, SlideshowImageRepository slideshowImageRepository) {
+    public SlideshowTransactionService(SlideshowRepository slideshowRepository,
+                                       SlideshowImageRepository slideshowImageRepository) {
         this.slideshowRepository = slideshowRepository;
         this.slideshowImageRepository = slideshowImageRepository;
     }
@@ -29,7 +30,7 @@ public class SlideshowTransactionService {
                     if (slideshowId <= 0) return Mono.just(false);
 
                     return saveSlideshow(slideshowId, correctSlideshow)
-                            .flatMap(slideshowSaved -> Mono.just(slideshowSaved));
+                            .flatMap(Mono::just);
                 })
                 .onErrorResume(error -> Mono.just(false));
     }
@@ -40,6 +41,23 @@ public class SlideshowTransactionService {
                         .map(savedId -> savedId > 0))
                 .all(Boolean::booleanValue)
                 .defaultIfEmpty(false);
+    }
+
+    @Transactional
+    public Mono<Boolean> deleteSlideshowById(Long slideshowId) {
+        return slideshowImageRepository.findIdsSlideshowImagesBySlideshowId(slideshowId)
+                .collectList()
+                .flatMap(ids -> {
+                    if (ids.isEmpty()) {
+                        return slideshowRepository.deleteById(slideshowId);
+                    } else {
+                        return Flux.fromIterable(ids)
+                                .flatMap(slideshowImageRepository::deleteById)
+                                .collectList()
+                                .flatMap(results -> slideshowRepository.deleteById(slideshowId));
+                    }
+                })
+                .onErrorReturn(false);
     }
 
 }

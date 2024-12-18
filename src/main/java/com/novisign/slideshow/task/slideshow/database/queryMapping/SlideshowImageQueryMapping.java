@@ -14,6 +14,14 @@ public enum SlideshowImageQueryMapping implements QueryMapping {
             RETURNING id
             """,
             Mapper.mapRowToId
+    ),
+    GET_SLIDESHOW_IMAGE_BY_IMAGE_ID(
+            "SELECT id FROM slideshow_image WHERE slideshow_id = :slideshow_id",
+            Mapper.mapRowToId
+    ),
+    DELETE_SLIDESHOW_IMAGE_BY_ID(
+            "DELETE FROM slideshow_image WHERE id = :id",
+            null
     );
 
     private final String query;

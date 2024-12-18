@@ -83,4 +83,13 @@ public class SlideshowService {
                 .map(TargetImageDuration::image_id)
                 .collect(Collectors.toList());
     }
+
+    public Mono<ApiResponse> deleteSlideshowById(Long id) {
+        return databaseAPI.deleteSlideshowById(id)
+                .flatMap(deleted -> deleted
+                        ? Mono.just(ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList()))
+                        : Mono.just(ApiResponse.error(StatusCodes.NOT_FOUND)))
+                .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
+    }
+
 }

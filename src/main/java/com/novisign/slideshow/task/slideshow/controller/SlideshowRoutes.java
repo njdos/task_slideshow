@@ -30,7 +30,7 @@ public class SlideshowRoutes {
                 .nest(RequestPredicates.path("/api/" + apiVersion.getVersion()),
                         builder -> builder
                                 .POST("/addSlideshow", slideshowHandler::addSlideshow)
-//                                .DELETE ("/deleteSlideshow/{id}", slideshowHandler::deleteSlideshow)
+                                .DELETE ("/deleteSlideshow/{id}", slideshowHandler::deleteSlideshow)
                 )
                 .build();
     }

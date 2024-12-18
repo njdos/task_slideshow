@@ -38,6 +38,10 @@ public class DatabaseAPI {
         return imageTransactionService.deleteImageById(id);
     }
 
+    public Mono<Boolean> deleteSlideshowById(Long id) {
+        return slideshowTransactionService.deleteSlideshowById(id);
+    }
+
     public Flux<Image> findImageIdAndDurationByIds(List<Long> ids) {
         return imageRepository.findImageIdAndDurationByIds(ids);
     }
