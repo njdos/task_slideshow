@@ -2,28 +2,32 @@ package com.novisign.slideshow.task.slideshow.service;
 
 import com.novisign.slideshow.task.slideshow.constant.StatusCodes;
 import com.novisign.slideshow.task.slideshow.database.DatabaseAPI;
+import com.novisign.slideshow.task.slideshow.database.helper.BindConfigurer;
+import com.novisign.slideshow.task.slideshow.database.queryMapping.DynamicQueryMapping;
+import com.novisign.slideshow.task.slideshow.mapper.Mapper;
 import com.novisign.slideshow.task.slideshow.model.AddImageRequest;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
+import com.novisign.slideshow.task.slideshow.model.SearchRequest;
 import com.novisign.slideshow.task.slideshow.processor.ImageProcessor;
+import com.novisign.slideshow.task.slideshow.utils.ImageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class ImageService {
 
     private final DatabaseAPI databaseAPI;
     private final ImageProcessor imageProcessor;
+    private final ImageUtils imageUtils;
 
     @Autowired
-    public ImageService(DatabaseAPI databaseAPI, ImageProcessor imageProcessor) {
+    public ImageService(DatabaseAPI databaseAPI, ImageProcessor imageProcessor, ImageUtils imageUtils) {
         this.databaseAPI = databaseAPI;
-        this.imageProcessor =    imageProcessor;
+        this.imageProcessor = imageProcessor;
+        this.imageUtils = imageUtils;
     }
 
     public Mono<ApiResponse> addImage(AddImageRequest request) {
@@ -46,7 +50,19 @@ public class ImageService {
                 .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
     }
 
-    public Mono<ApiResponse> search(String keyword, Integer duration) {
-        return databaseAPI.search(keyword, duration);
+    public Mono<ApiResponse> search(SearchRequest searchRequest) {
+        Mono<String> searchQuery = imageUtils.createSearchQuery(searchRequest);
+
+        BindConfigurer bindConfigurer = imageUtils.bindConfigurer(searchRequest);
+
+        return searchQuery.flatMap(query -> {
+            if (query == null || query.isEmpty()) {
+                return Mono.just(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY));
+            }
+
+            var queryMapping = new DynamicQueryMapping(query, Mapper.mapRowToId);
+            return databaseAPI.search(queryMapping, bindConfigurer);
+        });
     }
+
 }

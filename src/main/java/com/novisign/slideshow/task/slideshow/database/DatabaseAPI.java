@@ -1,5 +1,7 @@
 package com.novisign.slideshow.task.slideshow.database;
 
+import com.novisign.slideshow.task.slideshow.database.helper.BindConfigurer;
+import com.novisign.slideshow.task.slideshow.database.queryMapping.DynamicQueryMapping;
 import com.novisign.slideshow.task.slideshow.database.repository.ImageRepository;
 import com.novisign.slideshow.task.slideshow.database.transaction.ImageSearchTransactionService;
 import com.novisign.slideshow.task.slideshow.database.transaction.ImageTransactionService;
@@ -57,8 +59,8 @@ public class DatabaseAPI {
         return slideshowTransactionService.saveNewSlideshow(name, correctSlideshow);
     }
 
-    public Mono<ApiResponse> search(String keyword, Integer duration) {
-        return imageSearchTransactionService.search(keyword, duration);
+    public Mono<ApiResponse> search(DynamicQueryMapping dynamicQueryMapping, BindConfigurer bindConfigurer) {
+        return imageSearchTransactionService.search(dynamicQueryMapping, bindConfigurer);
     }
 
 }
