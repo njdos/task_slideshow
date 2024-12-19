@@ -20,7 +20,7 @@ public class SlideshowRepository {
 
     public Mono<Long> save(String name) {
         return databaseHelper.executeSaveOperation(
-                SlideshowQueryMapping.CREATE_SLIDESHOW,
+                SlideshowQueryMapping.CREATE_ENTITY,
                 spec -> spec
                         .bind("name", name)
                         .bind("created_time", LocalDateTime.now()),
@@ -30,7 +30,7 @@ public class SlideshowRepository {
 
     public Mono<Boolean> deleteById(Long id) {
         return databaseHelper.executeDeleteOperation(
-                SlideshowQueryMapping.DELETE_SLIDESHOW_BY_ID,
+                SlideshowQueryMapping.DELETE_ENTITY,
                 spec -> spec.bind("id", id),
                 "deleting the slideshow"
         );

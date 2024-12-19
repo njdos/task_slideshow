@@ -8,18 +8,18 @@ import java.util.function.BiFunction;
 
 public enum ImageSearchEngineQueryMapping implements QueryMapping {
 
-    CREATE_IMAGE_SEARCH("""
+    CREATE_ENTITY("""
             INSERT INTO image_search_engine (value, type, image_id)
             VALUES (:value, :type, :imageId)
             RETURNING id
             """,
             null
     ),
-    GET_IMAGE_SEARCH_BY_IMAGE_ID(
+    GET_PK_BY_IMAGE_ID(
             "SELECT id FROM image_search_engine WHERE image_id = :image_id",
             Mapper.mapRowToId
     ),
-    DELETE_IMAGE_SEARCH_BY_ID(
+    DELETE_ENTITY(
             "DELETE FROM image_search_engine WHERE id = :id",
             null
     );

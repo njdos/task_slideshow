@@ -8,7 +8,7 @@ import java.util.function.BiFunction;
 
 public enum ProofOfPlayQueryMapping implements QueryMapping {
 
-    CREATE_PROOF_OF_PLAY("""
+    CREATE_ENTITY("""
             INSERT INTO proof_of_play (slideshow_id, image_id, play_time)
             VALUES (:slideshow_id, :image_id, :play_time)
             RETURNING id

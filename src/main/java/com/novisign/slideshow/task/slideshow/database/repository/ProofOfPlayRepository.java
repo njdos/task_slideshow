@@ -19,7 +19,7 @@ public class ProofOfPlayRepository {
 
     public Mono<Long> save(ProofOfPlay proofOfPlay) {
         return databaseHelper.executeSaveOperation(
-                ProofOfPlayQueryMapping.CREATE_PROOF_OF_PLAY,
+                ProofOfPlayQueryMapping.CREATE_ENTITY,
                 spec -> spec
                         .bind("slideshow_id", proofOfPlay.getSlideshowId())
                         .bind("image_id", proofOfPlay.getImageId())

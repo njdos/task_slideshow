@@ -23,7 +23,7 @@ public class ImageSearchEngineRepository {
 
     public Mono<Long> save(ImageSearchEngine imageSearchEngine) {
         return databaseHelper.executeSaveOperation(
-                ImageSearchEngineQueryMapping.CREATE_IMAGE_SEARCH,
+                ImageSearchEngineQueryMapping.CREATE_ENTITY,
                 spec -> spec.bind("value", imageSearchEngine.getValue())
                         .bind("type", imageSearchEngine.getType())
                         .bind("imageId", imageSearchEngine.getImageId()),
@@ -33,7 +33,7 @@ public class ImageSearchEngineRepository {
 
     public Flux<Long> findIdsImageSearchByImageId(Long imageId) {
         return databaseHelper.executeForMany(
-                ImageSearchEngineQueryMapping.GET_IMAGE_SEARCH_BY_IMAGE_ID,
+                ImageSearchEngineQueryMapping.GET_PK_BY_IMAGE_ID,
                 spec -> spec.bind("image_id", imageId),
                 "fetching image search engine by image id"
         );
@@ -41,7 +41,7 @@ public class ImageSearchEngineRepository {
 
     public Mono<Boolean> deleteById(Long id) {
         return databaseHelper.executeDeleteOperation(
-                ImageSearchEngineQueryMapping.DELETE_IMAGE_SEARCH_BY_ID,
+                ImageSearchEngineQueryMapping.DELETE_ENTITY,
                 spec -> spec.bind("id", id),
                 "deleting image search engine"
         );

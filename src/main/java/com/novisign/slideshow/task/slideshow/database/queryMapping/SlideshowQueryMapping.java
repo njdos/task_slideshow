@@ -8,14 +8,14 @@ import java.util.function.BiFunction;
 
 public enum SlideshowQueryMapping implements QueryMapping {
 
-    CREATE_SLIDESHOW("""
+    CREATE_ENTITY("""
             INSERT INTO slideshow (name, created_time)
             VALUES (:name, :created_time)
             RETURNING id
             """,
             Mapper.mapRowToId
     ),
-    DELETE_SLIDESHOW_BY_ID(
+    DELETE_ENTITY(
             "DELETE FROM slideshow WHERE id = :id",
             null
     );
