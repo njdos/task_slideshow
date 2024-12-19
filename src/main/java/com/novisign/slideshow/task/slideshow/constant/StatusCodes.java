@@ -16,7 +16,8 @@ public enum StatusCodes {
     DATABASE_OPERATION_FAILED(5001, "Database Operation Failed"),
     LOADING_FILE_FAILED(5002, "Error loading file"),
     NOT_FOUND(6001, "Image not found"),
-    MAPPING_ERROR(6002, "Error occurred while mapping data");
+    MAPPING_ERROR(6002, "Error occurred while mapping data"),
+    SERIALIZATION_ERROR(6003, "JSON serialization error occurred");
 
     private final int code;
     private final String message;

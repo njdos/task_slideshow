@@ -1,6 +1,7 @@
 package com.novisign.slideshow.task.slideshow.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.novisign.slideshow.task.slideshow.exception.JsonSerializationException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,7 +13,7 @@ public class JsonUtils {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (Exception e) {
-            throw new RuntimeException("Error serializing object to JSON", e);
+            throw new JsonSerializationException("Error serializing object to JSON", e);
         }
     }
 }

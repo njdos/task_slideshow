@@ -33,16 +33,16 @@ public class SlideshowImageRepository {
 
     public Flux<Long> findIdsSlideshowImagesBySlideshowId(Long slideshowId) {
         return databaseHelper.executeForMany(
-                SlideshowImageQueryMapping.GET_SLIDESHOW_IMAGE_BY_IMAGE_ID,
+                SlideshowImageQueryMapping.GET_PK_SLIDESHOW_IMAGE_BY_SLIDESHOW_ID,
                 spec -> spec.bind("slideshow_id", slideshowId),
                 "fetching slideshow image by slideshow id"
         );
     }
 
-    public Flux<SlideshowImage> findIdsSlideshowImagesBySlideshowIds(List<Long> slideshowIds) {
+    public Flux<SlideshowImage> findIdsSlideshowImagesByImageIds(List<Long> imageIds) {
         return databaseHelper.executeForMany(
-                SlideshowImageQueryMapping.GET_SLIDESHOW_IMAGE_BY_SLIDESHOW_ID,
-                spec -> spec.bind("image_ids", slideshowIds),
+                SlideshowImageQueryMapping.GET_SLIDESHOW_IMAGE_BY_IMAGE_ID,
+                spec -> spec.bind("image_ids", imageIds),
                 "fetching slideshow image by slideshow ids"
         );
     }

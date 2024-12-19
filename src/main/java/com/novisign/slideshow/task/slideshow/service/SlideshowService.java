@@ -3,6 +3,7 @@ package com.novisign.slideshow.task.slideshow.service;
 import com.novisign.slideshow.task.slideshow.constant.StatusCodes;
 import com.novisign.slideshow.task.slideshow.database.DatabaseAPI;
 import com.novisign.slideshow.task.slideshow.entity.Image;
+import com.novisign.slideshow.task.slideshow.entity.ProofOfPlay;
 import com.novisign.slideshow.task.slideshow.model.AddSlideshowRequest;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.processor.SlideShowProcessor;
@@ -87,4 +88,18 @@ public class SlideshowService {
                 .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
     }
 
+    public Flux<ApiResponse> slideshowOrder(Long id) {
+        return databaseAPI.slideshowOrder(id)
+                .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
+    }
+
+    public Mono<ApiResponse> saveProofOfPlay(ProofOfPlay proofOfPlay) {
+        return databaseAPI.saveProofOfPlay(proofOfPlay)
+                .flatMap(generatedId -> {
+                    if (generatedId <= 0) return Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED));
+
+                    return Mono.just(ApiResponse.success(StatusCodes.OK, Collections.emptyList()));
+                })
+                .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
+    }
 }

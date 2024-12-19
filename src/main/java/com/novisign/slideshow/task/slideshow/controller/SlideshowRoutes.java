@@ -30,8 +30,8 @@ public class SlideshowRoutes {
                         builder -> builder
                                 .POST("/addSlideshow", slideshowHandler::addSlideshow)
                                 .DELETE("/deleteSlideshow/{id}", slideshowHandler::deleteSlideshow)
-//                                .GET("/slideShow/{id}/slideshowOrder", slideshowHandler::slideshowOrder)
-//                                .POST("/slideShow/{id}/proof-of-play/{imageId}", slideshowHandler::proofOfPlay)
+                                .GET("/slideShow/{id}/slideshowOrder", slideshowHandler::slideshowOrder)
+                                .POST("/slideShow/{id}/proof-of-play/{imageId}", slideshowHandler::proofOfPlay)
                 )
                 .build();
     }

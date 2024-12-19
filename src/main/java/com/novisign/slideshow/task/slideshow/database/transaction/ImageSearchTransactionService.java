@@ -46,7 +46,7 @@ public class ImageSearchTransactionService {
                     return imageRepository.findImageByIds(foundImageIds)
                             .collectList()
                             .flatMap(images ->
-                                    slideshowImageRepository.findIdsSlideshowImagesBySlideshowIds(foundImageIds)
+                                    slideshowImageRepository.findIdsSlideshowImagesByImageIds(foundImageIds)
                                             .collectList()
                                             .map(slideshowImages -> {
                                                 Map<Long, List<SlideshowImage>> groupedSlideshowImages = slideshowImages.stream()
