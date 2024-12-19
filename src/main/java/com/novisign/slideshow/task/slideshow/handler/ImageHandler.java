@@ -11,6 +11,8 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
+
 @Component
 public class ImageHandler {
 
@@ -31,7 +33,7 @@ public class ImageHandler {
                     return ServerResponse.status(status).bodyValue(apiResponse);
                 })
                 .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
-                        .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST)));
+                        .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY)));
     }
 
     public Mono<ServerResponse> deleteImage(ServerRequest request) {
@@ -41,7 +43,7 @@ public class ImageHandler {
                         Long imageId = Long.valueOf(id);
                         return imageService.deleteImageById(imageId);
                     } catch (NumberFormatException e) {
-                        return Mono.just(ApiResponse.error(StatusCodes.INVALID_REQUEST));
+                        return Mono.just(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY));
                     }
                 })
                 .flatMap(apiResponse -> {
@@ -52,7 +54,31 @@ public class ImageHandler {
                     return ServerResponse.status(status).bodyValue(apiResponse);
                 })
                 .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
-                        .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST)));
+                        .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY)));
+    }
+
+    public Mono<ServerResponse> search(ServerRequest request) {
+        String keyword = request.queryParam("keyword")
+                .orElse("");
+        Integer duration = request.queryParam("duration")
+                .map(Integer::parseInt)
+                .orElse(0);
+
+        if (keyword.isEmpty() && duration == 0) {
+            return ServerResponse.status(HttpStatus.OK)
+                    .bodyValue(ApiResponse.success(StatusCodes.OK, Collections.emptyList()));
+        }
+
+        return imageService.search(keyword, duration)
+                .flatMap(images ->
+                        ServerResponse.ok()
+                                .bodyValue(ApiResponse.success(StatusCodes.OK, images.getData()))
+                                .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
+                                        .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST_PARAMETERS)))
+                )
+                .onErrorResume(e ->
+                        ServerResponse.status(HttpStatus.BAD_REQUEST)
+                                .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY)));
     }
 
 }

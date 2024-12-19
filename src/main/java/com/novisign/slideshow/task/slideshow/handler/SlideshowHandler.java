@@ -31,7 +31,7 @@ public class SlideshowHandler {
                     return ServerResponse.status(status).bodyValue(apiResponse);
                 })
                 .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
-                        .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST)));
+                        .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY)));
     }
 
     public Mono<ServerResponse> deleteSlideshow(ServerRequest request) {
@@ -41,7 +41,7 @@ public class SlideshowHandler {
                         Long imageId = Long.valueOf(id);
                         return slideshowService.deleteSlideshowById(imageId);
                     } catch (NumberFormatException e) {
-                        return Mono.just(ApiResponse.error(StatusCodes.INVALID_REQUEST));
+                        return Mono.just(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY));
                     }
                 })
                 .flatMap(apiResponse -> {
@@ -52,7 +52,7 @@ public class SlideshowHandler {
                     return ServerResponse.status(status).bodyValue(apiResponse);
                 })
                 .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
-                        .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST)));
+                        .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY)));
     }
 
 }

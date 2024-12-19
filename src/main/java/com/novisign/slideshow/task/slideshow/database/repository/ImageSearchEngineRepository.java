@@ -45,4 +45,13 @@ public class ImageSearchEngineRepository {
         );
     }
 
+    public Flux<Long> search(String keyword, Integer duration) {
+        return databaseHelper.executeForMany(
+                ImageSearchEngineQuery.FIND_IMAGES_BY_KEYWORD_OR_DURATION,
+                spec -> spec
+                        .bind("value1", keyword)
+                        .bind("value2", duration.toString()),
+                "searching image by keyword and duration"
+        );
+    }
 }

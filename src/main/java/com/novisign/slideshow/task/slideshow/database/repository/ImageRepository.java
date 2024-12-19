@@ -33,6 +33,14 @@ public class ImageRepository {
         return databaseHelper.executeForMany(
                 ImageQueryMapping.GET_IMAGE_ID_AND_DURATION_BY_IDs,
                 spec -> spec.bind("ids", ids),
+                "fetching image id and duration by ids"
+        );
+    }
+
+    public Flux<Image> findImageByIds(List<Long> ids) {
+        return databaseHelper.executeForMany(
+                ImageQueryMapping.GET_IMAGE_BY_IDs,
+                spec -> spec.bind("ids", ids),
                 "fetching images by ids"
         );
     }

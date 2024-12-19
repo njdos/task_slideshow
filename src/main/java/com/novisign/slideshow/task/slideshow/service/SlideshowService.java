@@ -35,12 +35,12 @@ public class SlideshowService {
 
     public Mono<ApiResponse> addSlideshow(AddSlideshowRequest request) {
         if (request.images().isEmpty() || request.name().isEmpty()) {
-            return Mono.just(ApiResponse.error(StatusCodes.INVALID_REQUEST));
+            return Mono.just(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY));
         }
 
         List<Long> ids = convertIdsToList(request.images());
         if (ids.isEmpty()) {
-            return Mono.just(ApiResponse.error(StatusCodes.INVALID_REQUEST));
+            return Mono.just(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY));
         }
 
         return databaseAPI.findImageIdAndDurationByIds(ids)

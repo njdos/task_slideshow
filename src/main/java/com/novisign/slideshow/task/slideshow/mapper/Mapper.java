@@ -1,6 +1,7 @@
 package com.novisign.slideshow.task.slideshow.mapper;
 
 import com.novisign.slideshow.task.slideshow.entity.Image;
+import com.novisign.slideshow.task.slideshow.entity.SlideshowImage;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
 
@@ -25,6 +26,16 @@ public class Mapper {
                 image.setId(row.get("id", Long.class));
                 image.setDuration(row.get("duration", Integer.class));
                 return image;
+            };
+
+    public static final BiFunction<Row, RowMetadata, SlideshowImage> mapRowToSlideshowImage =
+            (row, rowMetaData) -> {
+                SlideshowImage slideshowImage = new SlideshowImage();
+                slideshowImage.setId(row.get("id", Long.class));
+                slideshowImage.setSlideshowId(row.get("slideshow_id", Long.class));
+                slideshowImage.setImageId(row.get("image_id", Long.class));
+                slideshowImage.setDuration(row.get("duration", Integer.class));
+                return slideshowImage;
             };
 
     public static final BiFunction<Row, RowMetadata, Long> mapRowToId =

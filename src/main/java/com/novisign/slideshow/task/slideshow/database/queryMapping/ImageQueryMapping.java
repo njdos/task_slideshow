@@ -12,6 +12,10 @@ public enum ImageQueryMapping implements QueryMapping {
             "SELECT * FROM image WHERE url = :url",
             Mapper.mapRowToImage
     ),
+    GET_IMAGE_BY_IDs(
+            "SELECT * FROM image WHERE id IN (:ids)",
+            Mapper.mapRowToImage
+    ),
     GET_IMAGE_ID_AND_DURATION_BY_IDs(
             "SELECT id, duration FROM image WHERE id IN (:ids)",
             Mapper.mapRowToImageIdAndDuration

@@ -1,5 +1,6 @@
 package com.novisign.slideshow.task.slideshow.database.queryMapping;
 
+import com.novisign.slideshow.task.slideshow.constant.ImageSearchTypes;
 import com.novisign.slideshow.task.slideshow.mapper.Mapper;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
@@ -17,6 +18,13 @@ public enum ImageSearchEngineQuery implements QueryMapping {
     ),
     GET_IMAGE_SEARCH_BY_IMAGE_ID(
             "SELECT id FROM image_search_engine WHERE image_id = :image_id",
+            Mapper.mapRowToId
+    ),
+    FIND_IMAGES_BY_KEYWORD_OR_DURATION("""
+                SELECT image_id as id
+                FROM image_search_engine
+                WHERE (type = '%s' AND value ILIKE :value1) OR (type = '%s' AND value = :value2)
+            """.formatted(ImageSearchTypes.KEYWORD, ImageSearchTypes.DURATION),
             Mapper.mapRowToId
     ),
     DELETE_IMAGE_SEARCH_BY_ID(

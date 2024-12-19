@@ -1,12 +1,14 @@
 package com.novisign.slideshow.task.slideshow.database.repository;
 
 import com.novisign.slideshow.task.slideshow.database.helper.DatabaseHelper;
-import com.novisign.slideshow.task.slideshow.database.queryMapping.ImageSearchEngineQuery;
 import com.novisign.slideshow.task.slideshow.database.queryMapping.SlideshowImageQueryMapping;
+import com.novisign.slideshow.task.slideshow.entity.SlideshowImage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Repository
 public class SlideshowImageRepository {
@@ -34,6 +36,14 @@ public class SlideshowImageRepository {
                 SlideshowImageQueryMapping.GET_SLIDESHOW_IMAGE_BY_IMAGE_ID,
                 spec -> spec.bind("slideshow_id", slideshowId),
                 "fetching slideshow image by slideshow id"
+        );
+    }
+
+    public Flux<SlideshowImage> findIdsSlideshowImagesBySlideshowIds(List<Long> slideshowIds) {
+        return databaseHelper.executeForMany(
+                SlideshowImageQueryMapping.GET_SLIDESHOW_IMAGE_BY_SLIDESHOW_ID,
+                spec -> spec.bind("image_ids", slideshowIds),
+                "fetching slideshow image by slideshow ids"
         );
     }
 

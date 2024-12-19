@@ -30,6 +30,7 @@ public class ImageRoutes {
                         builder -> builder
                                 .POST("/addImage", imageHandler::addImage)
                                 .DELETE("/deleteImage/{id}", imageHandler::deleteImage)
+                                .GET("/images/search", imageHandler::search)
                 )
                 .build();
     }
