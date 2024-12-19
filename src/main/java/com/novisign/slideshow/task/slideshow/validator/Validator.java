@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
-public class ImageValidator {
+public class Validator {
 
     private static final int MAX_DURATION = 3600;
 
@@ -22,6 +22,17 @@ public class ImageValidator {
                         : Mono.just(validationResponse)
                 )
                 .onErrorResume(throwable -> Mono.just(ApiResponse.error(StatusCodes.FAILED_VALIDATION)));
+    }
+
+    public Mono<Boolean> validateDuration(int duration) {
+        return Mono.just(duration > 0 && duration <= MAX_DURATION);
+    }
+
+    public Mono<ApiResponse> validateDuration(int duration, ApiResponse validationResponse) {
+        boolean isValidDuration = duration > 0 && duration <= MAX_DURATION;
+        return isValidDuration
+                ? Mono.just(ApiResponse.success(StatusCodes.OK, validationResponse.getData()))
+                : Mono.just(ApiResponse.error(StatusCodes.FAILED_VALIDATION_DURATION));
     }
 
     private Mono<ApiResponse> validateImage(Mono<ClientResponse> clientResponse) {
@@ -50,10 +61,4 @@ public class ImageValidator {
         );
     }
 
-    private Mono<ApiResponse> validateDuration(int duration, ApiResponse validationResponse) {
-        boolean isValidDuration = duration > 0 && duration <= MAX_DURATION;
-        return isValidDuration
-                ? Mono.just(ApiResponse.success(StatusCodes.OK, validationResponse.getData()))
-                : Mono.just(ApiResponse.error(StatusCodes.FAILED_VALIDATION_DURATION));
-    }
 }

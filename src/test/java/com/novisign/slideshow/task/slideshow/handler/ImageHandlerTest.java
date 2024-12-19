@@ -68,7 +68,7 @@ class ImageHandlerTest {
     @Test
     void testAddImage_BadRequest_ServiceError() {
         AddImageRequest request = new AddImageRequest("https://example.com/image.png", 30);
-        ApiResponse errorResponse = ApiResponse.error(StatusCodes.INVALID_REQUEST);
+        ApiResponse errorResponse = ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY);
 
         when(serverRequest.bodyToMono(AddImageRequest.class)).thenReturn(Mono.just(request));
         when(imageService.addImage(request)).thenReturn(Mono.error(new RuntimeException("Service error")));

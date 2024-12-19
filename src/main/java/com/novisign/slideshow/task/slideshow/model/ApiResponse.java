@@ -12,19 +12,19 @@ public class ApiResponse {
     private String message;
     private List<Map<String, Object>> data;
 
-    public ApiResponse(StatusCodes errorCode, List<Map<String, Object>> data) {
+    public ApiResponse(StatusCodes errorCode, boolean isSuccess, List<Map<String, Object>> data) {
         this.code = errorCode.getCode();
-        this.status = errorCode == StatusCodes.SUCCESS ? "success" : "error";
+        this.status = isSuccess ? "success" : "error";
         this.message = errorCode.getMessage();
         this.data = data;
     }
 
     public static ApiResponse success(StatusCodes statusCodes, List<Map<String, Object>> data) {
-        return new ApiResponse(statusCodes, data);
+        return new ApiResponse(statusCodes, true, data);
     }
 
     public static ApiResponse error(StatusCodes errorCode) {
-        return new ApiResponse(errorCode, Collections.emptyList());
+        return new ApiResponse(errorCode, false, Collections.emptyList());
     }
 
     public String getStatus() {
@@ -58,4 +58,5 @@ public class ApiResponse {
     public void setData(List<Map<String, Object>> data) {
         this.data = data;
     }
+
 }

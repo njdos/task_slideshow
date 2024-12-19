@@ -8,7 +8,7 @@ import com.novisign.slideshow.task.slideshow.exchange.RequestBuilder;
 import com.novisign.slideshow.task.slideshow.model.AddImageRequest;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.utils.UrlUtils;
-import com.novisign.slideshow.task.slideshow.validator.ImageValidator;
+import com.novisign.slideshow.task.slideshow.validator.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
@@ -21,15 +21,15 @@ import java.util.List;
 public class ImageProcessor {
 
     @Autowired
-    public ImageProcessor(Fetcher fetcher, ImageValidator imageValidator, UrlUtils urlUtils, DatabaseAPI databaseAPI) {
+    public ImageProcessor(Fetcher fetcher, Validator validator, UrlUtils urlUtils, DatabaseAPI databaseAPI) {
         this.fetcher = fetcher;
-        this.imageValidator = imageValidator;
+        this.validator = validator;
         this.urlUtils = urlUtils;
         this.databaseAPI = databaseAPI;
     }
 
     private final Fetcher fetcher;
-    private final ImageValidator imageValidator;
+    private final Validator validator;
     private final UrlUtils urlUtils;
     private final DatabaseAPI databaseAPI;
 
@@ -37,7 +37,7 @@ public class ImageProcessor {
         RequestBuilder imageRequest = RequestBuilder.builder(request.url(), HttpMethod.HEAD);
 
         return fetcher.fetchRequest(imageRequest)
-                .flatMap(clientResponse -> imageValidator.validate(Mono.just(clientResponse), request.duration()))
+                .flatMap(clientResponse -> validator.validate(Mono.just(clientResponse), request.duration()))
                 .flatMap(validationResult -> {
                     if (validationResult.getCode() != StatusCodes.OK.getCode()) {
                         return Mono.just(validationResult);

@@ -1,4 +1,4 @@
-package com.novisign.slideshow.task.slideshow.database.service;
+package com.novisign.slideshow.task.slideshow.database.transaction;
 
 import com.novisign.slideshow.task.slideshow.constant.ImageSearchTypes;
 import com.novisign.slideshow.task.slideshow.database.repository.ImageRepository;
@@ -14,12 +14,12 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Service
-public class DatabaseService {
+public class ImageTransactionService {
 
     @Autowired
-    public DatabaseService(ImageRepository imageRepository,
-                           ImageSearchEngineRepository imageSearchEngineRepository,
-                           EntityFactory entityFactory) {
+    public ImageTransactionService(ImageRepository imageRepository,
+                                   ImageSearchEngineRepository imageSearchEngineRepository,
+                                   EntityFactory entityFactory) {
         this.imageRepository = imageRepository;
         this.imageSearchEngineRepository = imageSearchEngineRepository;
         this.entityFactory = entityFactory;
@@ -27,6 +27,7 @@ public class DatabaseService {
 
     private final ImageRepository imageRepository;
     private final ImageSearchEngineRepository imageSearchEngineRepository;
+
     private final EntityFactory entityFactory;
 
     @Transactional
@@ -45,6 +46,22 @@ public class DatabaseService {
                 .onErrorResume(error -> Mono.just(false));
     }
 
+    @Transactional
+    public Mono<Boolean> deleteImageById(Long imageId) {
+        return imageSearchEngineRepository.findIdsImageSearchByImageId(imageId)
+                .collectList()
+                .flatMap(ids -> {
+                    if (ids.isEmpty()) {
+                        return imageRepository.deleteById(imageId);
+                    } else {
+                        return Flux.fromIterable(ids)
+                                .flatMap(imageSearchEngineRepository::deleteById)
+                                .collectList()
+                                .flatMap(results -> imageRepository.deleteById(imageId));
+                    }
+                })
+                .onErrorReturn(false);
+    }
 
     private Mono<Boolean> saveKeywords(Long imageId, List<String> keywords) {
         return Flux.fromIterable(keywords)

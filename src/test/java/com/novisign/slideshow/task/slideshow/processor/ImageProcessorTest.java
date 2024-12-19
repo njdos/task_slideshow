@@ -8,7 +8,7 @@ import com.novisign.slideshow.task.slideshow.exchange.RequestBuilder;
 import com.novisign.slideshow.task.slideshow.model.AddImageRequest;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.utils.UrlUtils;
-import com.novisign.slideshow.task.slideshow.validator.ImageValidator;
+import com.novisign.slideshow.task.slideshow.validator.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -29,7 +29,7 @@ class ImageProcessorTest {
     @Mock
     private Fetcher mockFetcher;
     @Mock
-    private ImageValidator mockImageValidator;
+    private Validator mockValidator;
     @Mock
     private UrlUtils mockUrlUtils;
     @Mock
@@ -38,7 +38,7 @@ class ImageProcessorTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        imageProcessor = new ImageProcessor(mockFetcher, mockImageValidator, mockUrlUtils, mockDatabaseAPI);
+        imageProcessor = new ImageProcessor(mockFetcher, mockValidator, mockUrlUtils, mockDatabaseAPI);
     }
 
     @Test
@@ -51,7 +51,7 @@ class ImageProcessorTest {
         when(mockFetcher.fetchRequest(any(RequestBuilder.class))).thenReturn(Mono.just(mockClientResponse));
 
         ApiResponse validationResponse = ApiResponse.success(StatusCodes.OK, Collections.emptyList());
-        when(mockImageValidator.validate(any(Mono.class), eq(duration))).thenReturn(Mono.just(validationResponse));
+        when(mockValidator.validate(any(Mono.class), eq(duration))).thenReturn(Mono.just(validationResponse));
 
         when(mockUrlUtils.extractImageType(validationResponse)).thenReturn(java.util.Optional.of("image/png"));
         when(mockUrlUtils.extractKeywordsFromUrl(imageUrl)).thenReturn(List.of("keyword1", "keyword2"));
@@ -77,7 +77,7 @@ class ImageProcessorTest {
         when(mockFetcher.fetchRequest(any(RequestBuilder.class))).thenReturn(Mono.just(mockClientResponse));
 
         ApiResponse validationResponse = ApiResponse.error(StatusCodes.FAILED_VALIDATION_IMAGE);
-        when(mockImageValidator.validate(any(Mono.class), eq(duration))).thenReturn(Mono.just(validationResponse));
+        when(mockValidator.validate(any(Mono.class), eq(duration))).thenReturn(Mono.just(validationResponse));
 
         Mono<ApiResponse> responseMono = imageProcessor.processNewImage(request);
 
@@ -98,7 +98,7 @@ class ImageProcessorTest {
         when(mockFetcher.fetchRequest(any(RequestBuilder.class))).thenReturn(Mono.just(mockClientResponse));
 
         ApiResponse validationResponse = ApiResponse.success(StatusCodes.OK, Collections.emptyList());
-        when(mockImageValidator.validate(any(Mono.class), eq(duration))).thenReturn(Mono.just(validationResponse));
+        when(mockValidator.validate(any(Mono.class), eq(duration))).thenReturn(Mono.just(validationResponse));
 
         when(mockUrlUtils.extractImageType(validationResponse)).thenReturn(java.util.Optional.of("image/png"));
         when(mockUrlUtils.extractKeywordsFromUrl(imageUrl)).thenReturn(List.of("keyword1", "keyword2"));
@@ -124,7 +124,7 @@ class ImageProcessorTest {
         when(mockFetcher.fetchRequest(any(RequestBuilder.class))).thenReturn(Mono.just(mockClientResponse));
 
         ApiResponse validationResponse = ApiResponse.success(StatusCodes.OK, Collections.emptyList());
-        when(mockImageValidator.validate(any(Mono.class), eq(duration))).thenReturn(Mono.just(validationResponse));
+        when(mockValidator.validate(any(Mono.class), eq(duration))).thenReturn(Mono.just(validationResponse));
 
         when(mockUrlUtils.extractImageType(validationResponse)).thenReturn(java.util.Optional.empty());
 
