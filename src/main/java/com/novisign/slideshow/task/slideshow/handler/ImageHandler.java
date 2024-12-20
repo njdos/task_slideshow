@@ -46,8 +46,8 @@ public class ImageHandler {
                     }
                 })
                 .flatMap(apiResponse -> {
-                    HttpStatus status = apiResponse.getCode() == HttpStatus.NO_CONTENT.value()
-                            ? HttpStatus.NO_CONTENT
+                    HttpStatus status = apiResponse.getCode() == HttpStatus.CREATED.value()
+                            ? HttpStatus.CREATED
                             : HttpStatus.BAD_REQUEST;
 
                     return ServerResponse.status(status).bodyValue(apiResponse);
