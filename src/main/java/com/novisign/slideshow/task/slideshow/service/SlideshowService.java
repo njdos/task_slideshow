@@ -3,10 +3,11 @@ package com.novisign.slideshow.task.slideshow.service;
 import com.novisign.slideshow.task.slideshow.constant.StatusCodes;
 import com.novisign.slideshow.task.slideshow.database.DatabaseAPI;
 import com.novisign.slideshow.task.slideshow.entity.Image;
+import com.novisign.slideshow.task.slideshow.entity.ProofOfPlay;
 import com.novisign.slideshow.task.slideshow.model.AddSlideshowRequest;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
-import com.novisign.slideshow.task.slideshow.model.TargetImageDuration;
 import com.novisign.slideshow.task.slideshow.processor.SlideShowProcessor;
+import com.novisign.slideshow.task.slideshow.utils.ApiResponseUtils;
 import com.novisign.slideshow.task.slideshow.validator.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class SlideshowService {
@@ -34,20 +34,22 @@ public class SlideshowService {
     }
 
     public Mono<ApiResponse> addSlideshow(AddSlideshowRequest request) {
-        if (request.images().isEmpty() || request.name().isEmpty()) {
-            return Mono.just(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY));
-        }
+        return slideShowProcessor.isValidRequest(request)
+                .flatMap(response -> {
+                    if (response.getCode() != StatusCodes.OK.getCode()) {
+                        return Mono.just(response);
+                    }
 
-        List<Long> ids = convertIdsToList(request.images());
-        if (ids.isEmpty()) {
-            return Mono.just(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY));
-        }
+                    List<Long> ids = (List<Long>) response.getData()
+                            .get(0)
+                            .get("ids");
 
-        return databaseAPI.findImageIdAndDurationByIds(ids)
-                .collectMap(Image::getId, Image::getDuration)
-                .flatMap(mappedImageIdAndDuration -> validateAndSaveSlideshow(request, mappedImageIdAndDuration))
-                .map(saved -> ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList()))
-                .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
+                    return databaseAPI.findImageIdAndDurationByIds(ids)
+                            .collectMap(Image::getId, Image::getDuration)
+                            .flatMap(mappedImageIdAndDuration -> validateAndSaveSlideshow(request, mappedImageIdAndDuration))
+                            .map(saved -> ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList()))
+                            .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
+                });
     }
 
     private Mono<Boolean> validateAndSaveSlideshow(AddSlideshowRequest request, Map<Long, Integer> mappedImageIdAndDuration) {
@@ -78,18 +80,27 @@ public class SlideshowService {
                 });
     }
 
-    private List<Long> convertIdsToList(List<TargetImageDuration> images) {
-        return images.stream()
-                .map(TargetImageDuration::image_id)
-                .collect(Collectors.toList());
-    }
 
     public Mono<ApiResponse> deleteSlideshowById(Long id) {
         return databaseAPI.deleteSlideshowById(id)
                 .flatMap(deleted -> deleted
                         ? Mono.just(ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList()))
                         : Mono.just(ApiResponse.error(StatusCodes.NOT_FOUND)))
-                .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
+                .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
     }
 
+    public Flux<ApiResponse> slideshowOrder(Long id) {
+        return databaseAPI.slideshowOrder(id)
+                .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
+    }
+
+    public Mono<ApiResponse> saveProofOfPlay(ProofOfPlay proofOfPlay) {
+        return databaseAPI.saveProofOfPlay(proofOfPlay)
+                .flatMap(generatedId -> {
+                    if (generatedId <= 0) return ApiResponseUtils.ERROR_DATABASE_OPERATION_FAILED(null);
+
+                    return Mono.just(ApiResponse.success(StatusCodes.OK, Collections.emptyList()));
+                })
+                .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
+    }
 }

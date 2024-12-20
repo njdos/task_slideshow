@@ -22,7 +22,7 @@ public class SlideshowImageRepository {
 
     public Mono<Long> save(Long slideshowId, Long imageId, Integer duration) {
         return databaseHelper.executeSaveOperation(
-                SlideshowImageQueryMapping.CREATE_SLIDESHOW_IMAGE,
+                SlideshowImageQueryMapping.CREATE_ENTITY,
                 spec -> spec
                         .bind("slideshow_id", slideshowId)
                         .bind("image_id", imageId)
@@ -33,23 +33,31 @@ public class SlideshowImageRepository {
 
     public Flux<Long> findIdsSlideshowImagesBySlideshowId(Long slideshowId) {
         return databaseHelper.executeForMany(
-                SlideshowImageQueryMapping.GET_SLIDESHOW_IMAGE_BY_IMAGE_ID,
+                SlideshowImageQueryMapping.GET_PK_BY_SLIDESHOW_ID,
                 spec -> spec.bind("slideshow_id", slideshowId),
-                "fetching slideshow image by slideshow id"
+                "fetching pk slideshow image by slideshow id"
         );
     }
 
-    public Flux<SlideshowImage> findIdsSlideshowImagesBySlideshowIds(List<Long> slideshowIds) {
+    public Flux<SlideshowImage> findIdsSlideshowImagesByImageIds(List<Long> imageIds) {
         return databaseHelper.executeForMany(
-                SlideshowImageQueryMapping.GET_SLIDESHOW_IMAGE_BY_SLIDESHOW_ID,
-                spec -> spec.bind("image_ids", slideshowIds),
+                SlideshowImageQueryMapping.GET_PK_BY_IMAGE_ID,
+                spec -> spec.bind("image_ids", imageIds),
+                "fetching slideshow image by slideshow ids"
+        );
+    }
+
+    public Flux<SlideshowImage> findIdsSlideshowImagesBySlideshowIds(Long slideshowId) {
+        return databaseHelper.executeForMany(
+                SlideshowImageQueryMapping.GET_ENTITY_BY_SLIDESHOW_ID,
+                spec -> spec.bind("slideshow_id", slideshowId),
                 "fetching slideshow image by slideshow ids"
         );
     }
 
     public Mono<Boolean> deleteById(Long id) {
         return databaseHelper.executeDeleteOperation(
-                SlideshowImageQueryMapping.DELETE_SLIDESHOW_IMAGE_BY_ID,
+                SlideshowImageQueryMapping.DELETE_ENTITY,
                 spec -> spec.bind("id", id),
                 "deleting slideshow image"
         );

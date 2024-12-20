@@ -23,7 +23,7 @@ public class ImageRepository {
 
     public Mono<Image> findImageByUrl(String url) {
         return databaseHelper.executeForOne(
-                ImageQueryMapping.GET_IMAGE_BY_URL,
+                ImageQueryMapping.GET_ENTITY_BY_URL,
                 spec -> spec.bind("url", url),
                 "fetching the image"
         );
@@ -31,7 +31,7 @@ public class ImageRepository {
 
     public Flux<Image> findImageIdAndDurationByIds(List<Long> ids) {
         return databaseHelper.executeForMany(
-                ImageQueryMapping.GET_IMAGE_ID_AND_DURATION_BY_IDs,
+                ImageQueryMapping.GET_ENTITY_ID_AND_DURATION_BY_IDs,
                 spec -> spec.bind("ids", ids),
                 "fetching image id and duration by ids"
         );
@@ -39,7 +39,7 @@ public class ImageRepository {
 
     public Flux<Image> findImageByIds(List<Long> ids) {
         return databaseHelper.executeForMany(
-                ImageQueryMapping.GET_IMAGE_BY_IDs,
+                ImageQueryMapping.GET_ENTITY_BY_IDs,
                 spec -> spec.bind("ids", ids),
                 "fetching images by ids"
         );
@@ -47,7 +47,7 @@ public class ImageRepository {
 
     public Mono<Long> save(Image image) {
         return databaseHelper.executeSaveOperation(
-                ImageQueryMapping.CREATE_IMAGE,
+                ImageQueryMapping.CREATE_ENTITY,
                 spec -> spec.bind("url", image.getUrl())
                         .bind("duration", image.getDuration())
                         .bind("type", image.getType())
@@ -58,7 +58,7 @@ public class ImageRepository {
 
     public Mono<Boolean> deleteById(Long id) {
         return databaseHelper.executeDeleteOperation(
-                ImageQueryMapping.DELETE_IMAGE_BY_ID,
+                ImageQueryMapping.DELETE_ENTITY,
                 spec -> spec.bind("id", id),
                 "deleting the image"
         );

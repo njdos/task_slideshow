@@ -1,7 +1,6 @@
 package com.novisign.slideshow.task.slideshow.controller;
 
 import com.novisign.slideshow.task.slideshow.constant.ApiVersion;
-import com.novisign.slideshow.task.slideshow.handler.ImageHandler;
 import com.novisign.slideshow.task.slideshow.handler.SlideshowHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +29,9 @@ public class SlideshowRoutes {
                 .nest(RequestPredicates.path("/api/" + apiVersion.getVersion()),
                         builder -> builder
                                 .POST("/addSlideshow", slideshowHandler::addSlideshow)
-                                .DELETE ("/deleteSlideshow/{id}", slideshowHandler::deleteSlideshow)
+                                .DELETE("/deleteSlideshow/{id}", slideshowHandler::deleteSlideshow)
+                                .GET("/slideShow/{id}/slideshowOrder", slideshowHandler::slideshowOrder)
+                                .POST("/slideShow/{id}/proof-of-play/{imageId}", slideshowHandler::proofOfPlay)
                 )
                 .build();
     }

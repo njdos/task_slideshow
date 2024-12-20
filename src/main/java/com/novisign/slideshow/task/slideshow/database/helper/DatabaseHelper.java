@@ -28,12 +28,12 @@ public class DatabaseHelper {
                         spec = bindConfigurer.configure(spec);
                         return (Mono<T>) spec.map(queryMapping.getMapping()).one();
                     } catch (Exception e) {
-                        return Mono.error(new CustomDatabaseException("Error during query execution", e));
+                        return Mono.error(throwCustomDatabaseException(e, operationDescription));
                     }
                 })
                 .onErrorMap(e -> e instanceof DataMappingException,
-                        e -> new DataMappingException("Mapping error occurred while " + operationDescription, e))
-                .onErrorMap(e -> new CustomDatabaseException("Error while " + operationDescription, e));
+                        e -> throwDataMappingException(e, operationDescription))
+                .onErrorMap(e -> throwCustomDatabaseException(e, operationDescription));
     }
 
     public <T> Flux<T> executeForMany(QueryMapping imageQuery,
@@ -45,12 +45,12 @@ public class DatabaseHelper {
                         spec = bindConfigurer.configure(spec);
                         return (Flux<T>) spec.map(imageQuery.getMapping()).all();
                     } catch (Exception e) {
-                        return Mono.error(new CustomDatabaseException("Error during query execution", e));
+                        return Mono.error(throwCustomDatabaseException(e, operationDescription));
                     }
                 })
                 .onErrorMap(e -> e instanceof DataMappingException,
-                        e -> new DataMappingException("Mapping error occurred while " + operationDescription, e))
-                .onErrorMap(e -> new CustomDatabaseException("Error while " + operationDescription, e));
+                        e -> throwDataMappingException(e, operationDescription))
+                .onErrorMap(e -> throwCustomDatabaseException(e, operationDescription));
     }
 
     public <T> Mono<T> executeSaveOperation(QueryMapping queryAndMapping,
@@ -62,12 +62,12 @@ public class DatabaseHelper {
                         spec = bindConfigurer.configure(spec);
                         return (Mono<T>) spec.map(queryAndMapping.getMapping()).one();
                     } catch (Exception e) {
-                        return Mono.error(new CustomDatabaseException("Error during query execution", e));
+                        return Mono.error(throwCustomDatabaseException(e, operationDescription));
                     }
                 })
                 .onErrorMap(e -> e instanceof DataMappingException,
-                        e -> new DataMappingException("Mapping error occurred while " + operationDescription, e))
-                .onErrorMap(e -> new CustomDatabaseException("Error while " + operationDescription, e));
+                        e -> throwDataMappingException(e, operationDescription))
+                .onErrorMap(e -> throwCustomDatabaseException(e, operationDescription));
     }
 
     public <T> Mono<T> executeDeleteOperation(QueryMapping queryAndMapping,
@@ -81,12 +81,20 @@ public class DatabaseHelper {
                                 .rowsUpdated()
                                 .map(rowsUpdated -> rowsUpdated > 0);
                     } catch (Exception e) {
-                        return Mono.error(new CustomDatabaseException("Error during query execution", e));
+                        return Mono.error(throwCustomDatabaseException(e, operationDescription));
                     }
                 })
                 .onErrorMap(e -> e instanceof DataMappingException,
-                        e -> new DataMappingException("Mapping error occurred while " + operationDescription, e))
-                .onErrorMap(e -> new CustomDatabaseException("Error while " + operationDescription, e));
+                        e -> throwDataMappingException(e, operationDescription))
+                .onErrorMap(e -> throwCustomDatabaseException(e, operationDescription));
+    }
+
+    private Throwable throwCustomDatabaseException(Throwable throwable, String operationDescription) {
+        return new CustomDatabaseException("Error while " + operationDescription, throwable);
+    }
+
+    private Throwable throwDataMappingException(Throwable throwable, String operationDescription) {
+        return new DataMappingException("Mapping error occurred while " + operationDescription, throwable);
     }
 
 

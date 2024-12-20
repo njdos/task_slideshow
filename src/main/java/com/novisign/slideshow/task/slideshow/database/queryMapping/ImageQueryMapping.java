@@ -8,26 +8,26 @@ import java.util.function.BiFunction;
 
 public enum ImageQueryMapping implements QueryMapping {
 
-    GET_IMAGE_BY_URL(
+    GET_ENTITY_BY_URL(
             "SELECT * FROM image WHERE url = :url",
             Mapper.mapRowToImage
     ),
-    GET_IMAGE_BY_IDs(
-            "SELECT * FROM image WHERE id IN (:ids)",
+    GET_ENTITY_BY_IDs(
+            "SELECT * FROM image WHERE id IN (:ids) ORDER BY added_time",
             Mapper.mapRowToImage
     ),
-    GET_IMAGE_ID_AND_DURATION_BY_IDs(
+    GET_ENTITY_ID_AND_DURATION_BY_IDs(
             "SELECT id, duration FROM image WHERE id IN (:ids)",
             Mapper.mapRowToImageIdAndDuration
     ),
-    CREATE_IMAGE("""
+    CREATE_ENTITY("""
             INSERT INTO image (url, duration, type, added_time)
             VALUES (:url, :duration, :type, :addedTime)
             RETURNING id
             """,
             Mapper.mapRowToId
     ),
-    DELETE_IMAGE_BY_ID(
+    DELETE_ENTITY(
             "DELETE FROM image WHERE id = :id",
             null
     );

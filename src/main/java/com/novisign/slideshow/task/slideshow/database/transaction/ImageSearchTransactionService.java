@@ -1,6 +1,8 @@
 package com.novisign.slideshow.task.slideshow.database.transaction;
 
 import com.novisign.slideshow.task.slideshow.constant.StatusCodes;
+import com.novisign.slideshow.task.slideshow.database.helper.BindConfigurer;
+import com.novisign.slideshow.task.slideshow.database.queryMapping.DynamicQueryMapping;
 import com.novisign.slideshow.task.slideshow.database.repository.ImageRepository;
 import com.novisign.slideshow.task.slideshow.database.repository.ImageSearchEngineRepository;
 import com.novisign.slideshow.task.slideshow.database.repository.SlideshowImageRepository;
@@ -10,7 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,10 +32,11 @@ public class ImageSearchTransactionService {
 
     private final ImageSearchEngineRepository imageSearchEngineRepository;
     private final SlideshowImageRepository slideshowImageRepository;
+
     private final ImageRepository imageRepository;
 
-    public Mono<ApiResponse> search(String keyword, Integer duration) {
-        return imageSearchEngineRepository.search(keyword, duration)
+    public Mono<ApiResponse> search(DynamicQueryMapping dynamicQueryMapping, BindConfigurer bindConfigurer) {
+        return imageSearchEngineRepository.search(dynamicQueryMapping, bindConfigurer)
                 .collectList()
                 .flatMap(foundImageIds -> {
                     if (foundImageIds.isEmpty()) {
@@ -40,7 +46,7 @@ public class ImageSearchTransactionService {
                     return imageRepository.findImageByIds(foundImageIds)
                             .collectList()
                             .flatMap(images ->
-                                    slideshowImageRepository.findIdsSlideshowImagesBySlideshowIds(foundImageIds)
+                                    slideshowImageRepository.findIdsSlideshowImagesByImageIds(foundImageIds)
                                             .collectList()
                                             .map(slideshowImages -> {
                                                 Map<Long, List<SlideshowImage>> groupedSlideshowImages = slideshowImages.stream()

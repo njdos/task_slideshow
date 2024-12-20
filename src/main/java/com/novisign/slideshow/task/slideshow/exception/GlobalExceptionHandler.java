@@ -32,7 +32,10 @@ public class GlobalExceptionHandler implements WebExceptionHandler {
         ApiResponse response;
 
         String requestUrl = exchange.getRequest().getURI().toString();
-        if (ex instanceof CustomDatabaseException) {
+        if (ex instanceof JsonSerializationException) {
+            response = ApiResponse.error(StatusCodes.SERIALIZATION_ERROR);
+            logger.error("JSON serialization error for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
+        } else if (ex instanceof CustomDatabaseException) {
             response = ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED);
             logger.error("Database operation failed for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
         } else if (ex instanceof DataMappingException) {
@@ -57,4 +60,5 @@ public class GlobalExceptionHandler implements WebExceptionHandler {
                 Mono.just(exchange.getResponse().bufferFactory().wrap(bytes))
         );
     }
+
 }

@@ -1,7 +1,9 @@
 package com.novisign.slideshow.task.slideshow.database.repository;
 
+import com.novisign.slideshow.task.slideshow.database.helper.BindConfigurer;
 import com.novisign.slideshow.task.slideshow.database.helper.DatabaseHelper;
-import com.novisign.slideshow.task.slideshow.database.queryMapping.ImageSearchEngineQuery;
+import com.novisign.slideshow.task.slideshow.database.queryMapping.DynamicQueryMapping;
+import com.novisign.slideshow.task.slideshow.database.queryMapping.ImageSearchEngineQueryMapping;
 import com.novisign.slideshow.task.slideshow.entity.ImageSearchEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -21,7 +23,7 @@ public class ImageSearchEngineRepository {
 
     public Mono<Long> save(ImageSearchEngine imageSearchEngine) {
         return databaseHelper.executeSaveOperation(
-                ImageSearchEngineQuery.CREATE_IMAGE_SEARCH,
+                ImageSearchEngineQueryMapping.CREATE_ENTITY,
                 spec -> spec.bind("value", imageSearchEngine.getValue())
                         .bind("type", imageSearchEngine.getType())
                         .bind("imageId", imageSearchEngine.getImageId()),
@@ -31,7 +33,7 @@ public class ImageSearchEngineRepository {
 
     public Flux<Long> findIdsImageSearchByImageId(Long imageId) {
         return databaseHelper.executeForMany(
-                ImageSearchEngineQuery.GET_IMAGE_SEARCH_BY_IMAGE_ID,
+                ImageSearchEngineQueryMapping.GET_PK_BY_IMAGE_ID,
                 spec -> spec.bind("image_id", imageId),
                 "fetching image search engine by image id"
         );
@@ -39,18 +41,16 @@ public class ImageSearchEngineRepository {
 
     public Mono<Boolean> deleteById(Long id) {
         return databaseHelper.executeDeleteOperation(
-                ImageSearchEngineQuery.DELETE_IMAGE_SEARCH_BY_ID,
+                ImageSearchEngineQueryMapping.DELETE_ENTITY,
                 spec -> spec.bind("id", id),
                 "deleting image search engine"
         );
     }
 
-    public Flux<Long> search(String keyword, Integer duration) {
+    public Flux<Long> search(DynamicQueryMapping dynamicQueryMapping, BindConfigurer bindConfigurer) {
         return databaseHelper.executeForMany(
-                ImageSearchEngineQuery.FIND_IMAGES_BY_KEYWORD_OR_DURATION,
-                spec -> spec
-                        .bind("value1", keyword)
-                        .bind("value2", duration.toString()),
+                dynamicQueryMapping,
+                bindConfigurer,
                 "searching image by keyword and duration"
         );
     }
