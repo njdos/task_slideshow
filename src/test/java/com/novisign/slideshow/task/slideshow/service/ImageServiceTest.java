@@ -6,6 +6,7 @@ import com.novisign.slideshow.task.slideshow.entity.Image;
 import com.novisign.slideshow.task.slideshow.model.AddImageRequest;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.processor.ImageProcessor;
+import com.novisign.slideshow.task.slideshow.utils.ImageUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -23,12 +24,15 @@ class ImageServiceTest {
     @Mock
     private ImageProcessor imageProcessor;
 
+    @Mock
+    private ImageUtils utils;
+
     private ImageService imageService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        imageService = new ImageService(databaseAPI, imageProcessor);
+        imageService = new ImageService(databaseAPI, imageProcessor, utils);
     }
 
     @Test
