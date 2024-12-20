@@ -5,14 +5,21 @@ import com.novisign.slideshow.task.slideshow.entity.ProofOfPlay;
 import com.novisign.slideshow.task.slideshow.model.AddSlideshowRequest;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.service.SlideshowService;
+import com.novisign.slideshow.task.slideshow.utils.ApiResponseUtils;
 import com.novisign.slideshow.task.slideshow.utils.ConverterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.time.Duration;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class SlideshowHandler {
@@ -35,8 +42,7 @@ public class SlideshowHandler {
 
                     return ServerResponse.status(status).bodyValue(apiResponse);
                 })
-                .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
-                        .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY)));
+                .onErrorResume(ApiResponseUtils::BAD_REQUEST_INVALID_REQUEST_BODY);
     }
 
     public Mono<ServerResponse> deleteSlideshow(ServerRequest request) {
@@ -56,16 +62,35 @@ public class SlideshowHandler {
 
                     return ServerResponse.status(status).bodyValue(apiResponse);
                 })
-                .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
-                        .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY)));
+                .onErrorResume(ApiResponseUtils::BAD_REQUEST_INVALID_REQUEST_BODY);
     }
 
-    public Flux<ApiResponse> slideshowOrder(ServerRequest request) {
+    public Mono<ServerResponse> slideshowOrder(ServerRequest request) {
         return converterUtils.parseToLong(request.pathVariable("id"))
-                .flatMap(id -> slideshowService.slideshowOrder(id))
-                .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
-                        .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY)));
+                .flatMapMany(slideshowService::slideshowOrder)
+                .onErrorResume(e -> Flux.just(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY)))
+                .index()
+                .flatMapSequential(indexedElement -> {
+                    long index = indexedElement.getT1();
+                    ApiResponse response = indexedElement.getT2();
+
+                    Integer duration = response.getData().stream()
+                            .findFirst()
+                            .flatMap(data -> data instanceof Map ? Optional.of((Integer) ((Map<?, ?>) data).get("duration")) : Optional.empty())
+                            .orElse(0);
+
+                    if (index == 0) {
+                        return Mono.just(response);
+                    } else {
+                        return Mono.delay(Duration.ofSeconds(duration))
+                                .thenReturn(response);
+                    }
+                })
+                .as(flux -> ServerResponse.ok()
+                        .contentType(MediaType.TEXT_EVENT_STREAM)
+                        .body(flux, ApiResponse.class));
     }
+
 
     public Mono<ServerResponse> proofOfPlay(ServerRequest request) {
         return converterUtils.parseToLong(request.pathVariable("id"))
@@ -76,10 +101,10 @@ public class SlideshowHandler {
                     ProofOfPlay proofOfPlay = new ProofOfPlay(slideshowId, imageId);
 
                     return slideshowService.saveProofOfPlay(proofOfPlay)
-                            .flatMap(apiResponse -> ServerResponse.ok().bodyValue(apiResponse));
+                            .flatMap(apiResponse -> ServerResponse.ok().bodyValue(
+                                    ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList())));
                 })
-                .onErrorResume(e -> ServerResponse.status(HttpStatus.BAD_REQUEST)
-                        .bodyValue(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY)));
+                .onErrorResume(ApiResponseUtils::BAD_REQUEST_INVALID_REQUEST_BODY);
     }
 
 }

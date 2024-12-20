@@ -9,6 +9,7 @@ import com.novisign.slideshow.task.slideshow.model.AddImageRequest;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.model.SearchRequest;
 import com.novisign.slideshow.task.slideshow.processor.ImageProcessor;
+import com.novisign.slideshow.task.slideshow.utils.ApiResponseUtils;
 import com.novisign.slideshow.task.slideshow.utils.ImageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,9 +38,7 @@ public class ImageService {
                         ? Mono.just(ApiResponse.error(StatusCodes.ALREADY_EXISTS))
                         : imageProcessor.processNewImage(request)
                 )
-                .onErrorResume(error ->
-                        Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED))
-                );
+                .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
     }
 
     public Mono<ApiResponse> deleteImageById(Long id) {
@@ -47,7 +46,7 @@ public class ImageService {
                 .flatMap(deleted -> deleted
                         ? Mono.just(ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList()))
                         : Mono.just(ApiResponse.error(StatusCodes.NOT_FOUND)))
-                .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
+                .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
     }
 
     public Mono<ApiResponse> search(SearchRequest searchRequest) {

@@ -15,6 +15,10 @@ public enum SlideshowQueryMapping implements QueryMapping {
             """,
             Mapper.mapRowToId
     ),
+    GET_ENTITY_BY_IDs(
+            "SELECT * FROM slideshow WHERE id IN (:ids)",
+            Mapper.mapRowToImage
+    ),
     DELETE_ENTITY(
             "DELETE FROM slideshow WHERE id = :id",
             null

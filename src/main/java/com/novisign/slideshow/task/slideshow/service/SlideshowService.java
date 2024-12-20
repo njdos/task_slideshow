@@ -7,6 +7,7 @@ import com.novisign.slideshow.task.slideshow.entity.ProofOfPlay;
 import com.novisign.slideshow.task.slideshow.model.AddSlideshowRequest;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.processor.SlideShowProcessor;
+import com.novisign.slideshow.task.slideshow.utils.ApiResponseUtils;
 import com.novisign.slideshow.task.slideshow.validator.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,7 +48,7 @@ public class SlideshowService {
                             .collectMap(Image::getId, Image::getDuration)
                             .flatMap(mappedImageIdAndDuration -> validateAndSaveSlideshow(request, mappedImageIdAndDuration))
                             .map(saved -> ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList()))
-                            .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
+                            .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
                 });
     }
 
@@ -85,21 +86,21 @@ public class SlideshowService {
                 .flatMap(deleted -> deleted
                         ? Mono.just(ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList()))
                         : Mono.just(ApiResponse.error(StatusCodes.NOT_FOUND)))
-                .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
+                .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
     }
 
     public Flux<ApiResponse> slideshowOrder(Long id) {
         return databaseAPI.slideshowOrder(id)
-                .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
+                .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
     }
 
     public Mono<ApiResponse> saveProofOfPlay(ProofOfPlay proofOfPlay) {
         return databaseAPI.saveProofOfPlay(proofOfPlay)
                 .flatMap(generatedId -> {
-                    if (generatedId <= 0) return Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED));
+                    if (generatedId <= 0) return ApiResponseUtils.ERROR_DATABASE_OPERATION_FAILED(null);
 
                     return Mono.just(ApiResponse.success(StatusCodes.OK, Collections.emptyList()));
                 })
-                .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
+                .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
     }
 }

@@ -7,6 +7,7 @@ import com.novisign.slideshow.task.slideshow.exchange.Fetcher;
 import com.novisign.slideshow.task.slideshow.exchange.RequestBuilder;
 import com.novisign.slideshow.task.slideshow.model.AddImageRequest;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
+import com.novisign.slideshow.task.slideshow.utils.ApiResponseUtils;
 import com.novisign.slideshow.task.slideshow.utils.UrlUtils;
 import com.novisign.slideshow.task.slideshow.validator.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,6 @@ public class ImageProcessor {
 
         return databaseAPI.saveNewImage(image, keywords)
                 .map(savedImage -> ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList()))
-                .onErrorResume(error -> Mono.just(ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED)));
+                .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
     }
 }

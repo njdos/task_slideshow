@@ -13,7 +13,7 @@ public enum ImageQueryMapping implements QueryMapping {
             Mapper.mapRowToImage
     ),
     GET_ENTITY_BY_IDs(
-            "SELECT * FROM image WHERE id IN (:ids)",
+            "SELECT * FROM image WHERE id IN (:ids) ORDER BY added_time",
             Mapper.mapRowToImage
     ),
     GET_ENTITY_ID_AND_DURATION_BY_IDs(

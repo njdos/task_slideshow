@@ -15,11 +15,17 @@ public enum SlideshowImageQueryMapping implements QueryMapping {
             """,
             Mapper.mapRowToId
     ),
-    GET_PK_BY_IMAGE_ID(
-            "SELECT id FROM slideshow_image " +
-                    "WHERE slideshow_id = :slideshow_id " +
-                    "ORDER BY",
+    GET_PK_BY_IMAGE_ID("""
+            SELECT id FROM slideshow_image
+            WHERE slideshow_id = :slideshow_id
+            """,
             Mapper.mapRowToId
+    ),
+    GET_ENTITY_BY_SLIDESHOW_ID("""
+            SELECT * FROM slideshow_image
+            WHERE slideshow_id = :slideshow_id
+             """,
+            Mapper.mapRowToSlideshowImage
     ),
     GET_PK_BY_SLIDESHOW_ID(
             "SELECT id FROM slideshow_image WHERE slideshow_id = :slideshow_id",

@@ -35,7 +35,7 @@ public class SlideshowImageRepository {
         return databaseHelper.executeForMany(
                 SlideshowImageQueryMapping.GET_PK_BY_SLIDESHOW_ID,
                 spec -> spec.bind("slideshow_id", slideshowId),
-                "fetching slideshow image by slideshow id"
+                "fetching pk slideshow image by slideshow id"
         );
     }
 
@@ -43,6 +43,14 @@ public class SlideshowImageRepository {
         return databaseHelper.executeForMany(
                 SlideshowImageQueryMapping.GET_PK_BY_IMAGE_ID,
                 spec -> spec.bind("image_ids", imageIds),
+                "fetching slideshow image by slideshow ids"
+        );
+    }
+
+    public Flux<SlideshowImage> findIdsSlideshowImagesBySlideshowIds(Long slideshowId) {
+        return databaseHelper.executeForMany(
+                SlideshowImageQueryMapping.GET_ENTITY_BY_SLIDESHOW_ID,
+                spec -> spec.bind("slideshow_id", slideshowId),
                 "fetching slideshow image by slideshow ids"
         );
     }
