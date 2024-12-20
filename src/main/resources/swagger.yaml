@@ -12,65 +12,343 @@ info:
 servers:
   - url: http://localhost:8080
     description: Local development server
+tags:
+  - name: General
+  - name: Image
+  - name: Slideshow
 
 paths:
+  /statusCodes:
+    get:
+      tags:
+        - General
+      summary: Status codes
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Content-Length:
+              schema:
+                type: integer
+                example: '539'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                '200': Ok
+                '201': Successfully processed operation
+                '1000': Failed validation
+                '1001': Failed validation image type or content
+                '1002': Failed validation duration of image
+                '2000': Slideshow Not Found
+                '3000': Validation Failed
+                '4000': Already exists
+                '4001': Invalid request body format
+                '4002': Invalid request parameters format
+                '5000': Internal Server Error
+                '5001': Database Operation Failed
+                '5002': Error loading file
+                '6001': Image not found
+                '6002': Error occurred while mapping data
+                '6003': JSON serialization error occurred
   /api/{vers}/addImage:
     post:
       tags:
-        - Image Management
-      summary: Add a new image to the system
-      description: Add a new image URL with a specified duration. Validates if the URL points to a valid image.
-      operationId: addImage
-      parameters:
-        - name: vers
-          in: path
-          description: API version
-          required: true
-          schema:
-            type: string
+        - Image
+      summary: Upload image
       requestBody:
         content:
           application/json:
             schema:
               type: object
-              required:
-                - url
-                - duration
-              properties:
-                url:
-                  type: string
-                  example: https://example.com/image.jpg
-                  description: URL of the image.
-                duration:
-                  type: integer
-                  example: 30
-                  description: Duration (in seconds) for which the image will be displayed in the slideshow.
+              example:
+                url: >-
+                  https://fastly.picsum.photos/id/643/200/300.jpg?hmac=rS-MHa0BIMHdAgm-FZ7QM36aRKEAzzhSRNRv5n4uqGc
+                duration: 30
+      parameters:
+        - name: vers
+          in: path
+          schema:
+            type: string
+          required: true
       responses:
         '201':
-          description: Image successfully added.
+          description: Created
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Content-Length:
+              schema:
+                type: integer
+                example: '72'
           content:
             application/json:
               schema:
                 type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        url:
-                          type: string
-                        duration:
-                          type: integer
-                  status:
-                    type: string
-                    example: success
-                  code:
-                    type: integer
-                    example: 201
-                  message:
-                    type: string
-                    example: Successfully added the image.
+              example:
+                data: []
+                status: success
+                code: 201
+                message: Successfully added
+  /api/{vers}/deleteImage/{imageId}:
+    delete:
+      tags:
+        - Image
+      summary: Delete image
+      parameters:
+        - name: vers
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: imageId
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        '400':
+          description: Bad Request
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Content-Length:
+              schema:
+                type: integer
+                example: '86'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                data: []
+                status: success
+                code: 201
+                message: Successfully processed operation
+  /api/{vers}/images/search:
+    get:
+      tags:
+        - Image
+      summary: Search image
+      parameters:
+        - name: vers
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Content-Length:
+              schema:
+                type: integer
+                example: '427'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                data:
+                  - image:
+                      id: 10
+                      url: >-
+                        https://fastly.picsum.photos/id/1080/200/300.jpg?hmac=3jCG4X8ni9cpiEppj6KVvqhpJ_owIFtDQOABJmhG1I0
+                      duration: 30
+                      type: image/jpeg
+                      addedTime: '2024-12-17T01:36:11.399025'
+                    slideshow:
+                      - id: 4
+                        slideshowId: 5
+                        imageId: 10
+                        duration: 10
+                      - id: 8
+                        slideshowId: 7
+                        imageId: 10
+                        duration: 30
+                      - id: 11
+                        slideshowId: 8
+                        imageId: 10
+                        duration: 30
+                status: success
+                code: 200
+                message: Ok
+  /api/{vers}/addSlideshow:
+    post:
+      tags:
+        - Slideshow
+      summary: Add slideshow
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                name: test2
+                images:
+                  - image_id: 10
+                    duration: 10
+                  - image_id: 5
+                    duration: -1
+      parameters:
+        - name: vers
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '201':
+          description: Created
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Content-Length:
+              schema:
+                type: integer
+                example: '86'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                data: []
+                status: success
+                code: 201
+                message: Successfully processed operation
+  /api/{vers}/deleteSlideshow/{slideshowId}:
+    delete:
+      tags:
+        - Slideshow
+      summary: Delete slideshow
+      parameters:
+        - name: vers
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: slideshowId
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        '400':
+          description: Bad Request
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Content-Length:
+              schema:
+                type: integer
+                example: '86'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                data: []
+                status: success
+                code: 201
+                message: Successfully processed operation
+  /api/{vers}/slideShow/{slideshowId}/slideshowOrder:
+    get:
+      tags:
+        - Slideshow
+      summary: Slideshow order
+      parameters:
+        - name: vers
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: slideshowId
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            transfer-encoding:
+              schema:
+                type: string
+                example: chunked
+            Content-Type:
+              schema:
+                type: string
+                example: text/event-stream;charset=UTF-8
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: >+
+                data:{"data":[{"imageData":{"id":5,"url":"https://fastly.picsum.photos/id/892/200/300.jpg?hmac=9MUtm-RM2UIFVmP8I80S9TuWKk93ZEPqQLpOf-y1BwE","duration":6,"type":"image/jpeg","addedTime":"2024-12-15T01:20:09.528432"},"imageId":5,"slideshowId":5,"duration":2}],"status":"success","code":200,"message":"Ok"}
+
+
+                data:{"data":[{"imageData":{"id":10,"url":"https://fastly.picsum.photos/id/1080/200/300.jpg?hmac=3jCG4X8ni9cpiEppj6KVvqhpJ_owIFtDQOABJmhG1I0","duration":30,"type":"image/jpeg","addedTime":"2024-12-17T01:36:11.399025"},"imageId":10,"slideshowId":5,"duration":10}],"status":"success","code":200,"message":"Ok"}
+
+  /api/{vers}/slideShow/{slideshowId}/proof-of-play/{imageId}:
+    post:
+      tags:
+        - Slideshow
+      summary: Proof of play
+      requestBody:
+        content: {}
+      parameters:
+        - name: vers
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: slideshowId
+          in: path
+          schema:
+            type: integer
+          required: true
+        - name: imageId
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Content-Length:
+              schema:
+                type: integer
+                example: '86'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                data: []
+                status: success
+                code: 201
+                message: Successfully processed operation
 
 components:
   schemas:
