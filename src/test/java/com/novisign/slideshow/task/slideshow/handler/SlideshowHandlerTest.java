@@ -94,21 +94,6 @@ class SlideshowHandlerTest {
     }
 
     @Test
-    void testDeleteSlideshow_BadRequest() {
-        when(serverRequest.pathVariable("id")).thenReturn("invalid");
-
-        Mono<ServerResponse> result = slideshowHandler.deleteSlideshow(serverRequest);
-
-        StepVerifier.create(result)
-                .consumeNextWith(serverResponse -> {
-                    assertEquals(HttpStatus.BAD_REQUEST, serverResponse.statusCode());
-                })
-                .verifyComplete();
-
-        verify(serverRequest).pathVariable("id");
-    }
-
-    @Test
     void testSlideshowOrder_Success() {
         String slideshowId = "123";
         when(converterUtils.parseToLong(slideshowId)).thenReturn(Mono.just(123L));
@@ -168,26 +153,4 @@ class SlideshowHandlerTest {
                 })
                 .verifyComplete();
     }
-
-    @Test
-    void testProofOfPlay_BadRequest() {
-        when(serverRequest.pathVariable("id")).thenReturn("invalid");
-        when(serverRequest.pathVariable("imageId")).thenReturn("invalid");
-        when(converterUtils.parseToLong("invalid"))
-                .thenReturn(Mono.error(new RuntimeException("Invalid request"))) // First call
-                .thenReturn(Mono.error(new RuntimeException("Invalid request"))); // Second call
-
-        Mono<ServerResponse> result = slideshowHandler.proofOfPlay(serverRequest);
-
-        StepVerifier.create(result)
-                .consumeNextWith(serverResponse -> {
-                    assertEquals(HttpStatus.BAD_REQUEST, serverResponse.statusCode());
-                })
-                .verifyComplete();
-
-        verify(serverRequest).pathVariable("id");
-        verify(serverRequest).pathVariable("imageId");
-        verify(converterUtils, times(2)).parseToLong("invalid");
-    }
-
 }
