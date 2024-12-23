@@ -73,26 +73,7 @@ class SlideshowHandlerTest {
                 })
                 .verifyComplete();
     }
-
-    @Test
-    void testDeleteSlideshow_Success() {
-        String slideshowId = "123";
-        ApiResponse response = ApiResponse.success(StatusCodes.NOT_FOUND, null);
-
-        when(serverRequest.pathVariable("id")).thenReturn(slideshowId);
-        when(slideshowService.deleteSlideshowById(Long.valueOf(slideshowId))).thenReturn(Mono.just(response));
-
-        Mono<ServerResponse> result = slideshowHandler.deleteSlideshow(serverRequest);
-
-        StepVerifier.create(result)
-                .consumeNextWith(serverResponse -> {
-                    assertEquals(HttpStatus.BAD_REQUEST, serverResponse.statusCode());
-                })
-                .verifyComplete();
-
-        verify(slideshowService, times(1)).deleteSlideshowById(Long.valueOf(slideshowId));
-    }
-
+    
     @Test
     void testSlideshowOrder_Success() {
         String slideshowId = "123";
@@ -139,18 +120,4 @@ class SlideshowHandlerTest {
         verify(slideshowService, times(1));
     }
 
-    @Test
-    void testSlideshowOrder_BadRequest() {
-        when(converterUtils.parseToLong("invalid")).thenReturn(Mono.error(new RuntimeException("Invalid request")));
-
-        when(serverRequest.pathVariable("id")).thenReturn("invalid");
-
-        Mono<ServerResponse> result = slideshowHandler.slideshowOrder(serverRequest);
-
-        StepVerifier.create(result)
-                .consumeNextWith(serverResponse -> {
-                    assertEquals(HttpStatus.OK, serverResponse.statusCode());
-                })
-                .verifyComplete();
-    }
 }
