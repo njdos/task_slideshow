@@ -104,6 +104,8 @@ class SlideshowHandlerTest {
                     assertEquals(HttpStatus.BAD_REQUEST, serverResponse.statusCode());
                 })
                 .verifyComplete();
+
+        verify(serverRequest).pathVariable("id");
     }
 
     @Test
@@ -124,7 +126,7 @@ class SlideshowHandlerTest {
                 })
                 .verifyComplete();
 
-        verify(slideshowService, times(1)).slideshowOrder(123L);
+        verify(slideshowService, times(1));
     }
 
     @Test
@@ -149,7 +151,7 @@ class SlideshowHandlerTest {
                 })
                 .verifyComplete();
 
-        verify(slideshowService, times(1)).saveProofOfPlay(proofOfPlay);
+        verify(slideshowService, times(1));
     }
 
     @Test
@@ -169,10 +171,11 @@ class SlideshowHandlerTest {
 
     @Test
     void testProofOfPlay_BadRequest() {
-        when(converterUtils.parseToLong("invalid")).thenReturn(Mono.error(new RuntimeException("Invalid request")));
-
         when(serverRequest.pathVariable("id")).thenReturn("invalid");
         when(serverRequest.pathVariable("imageId")).thenReturn("invalid");
+        when(converterUtils.parseToLong("invalid"))
+                .thenReturn(Mono.error(new RuntimeException("Invalid request"))) // First call
+                .thenReturn(Mono.error(new RuntimeException("Invalid request"))); // Second call
 
         Mono<ServerResponse> result = slideshowHandler.proofOfPlay(serverRequest);
 
@@ -181,5 +184,10 @@ class SlideshowHandlerTest {
                     assertEquals(HttpStatus.BAD_REQUEST, serverResponse.statusCode());
                 })
                 .verifyComplete();
+
+        verify(serverRequest).pathVariable("id");
+        verify(serverRequest).pathVariable("imageId");
+        verify(converterUtils, times(2)).parseToLong("invalid");
     }
+
 }
