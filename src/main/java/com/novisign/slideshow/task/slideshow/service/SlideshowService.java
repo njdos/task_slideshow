@@ -80,7 +80,6 @@ public class SlideshowService {
                 });
     }
 
-
     public Mono<ApiResponse> deleteSlideshowById(Long id) {
         return databaseAPI.deleteSlideshowById(id)
                 .flatMap(deleted -> deleted
