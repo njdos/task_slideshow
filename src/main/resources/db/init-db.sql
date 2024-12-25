@@ -1,4 +1,4 @@
-CREATE TABLE image
+CREATE TABLE IF NOT EXISTS image
 (
     id         BIGSERIAL PRIMARY KEY,
     url        VARCHAR(255) NOT NULL UNIQUE,
@@ -7,7 +7,7 @@ CREATE TABLE image
     added_time TIMESTAMP    NOT NULL
 );
 
-CREATE TABLE image_search_engine
+CREATE TABLE IF NOT EXISTS image_search_engine
 (
     id       BIGSERIAL PRIMARY KEY,
     value    VARCHAR(255) NOT NULL,
@@ -16,14 +16,14 @@ CREATE TABLE image_search_engine
     CONSTRAINT fk_image_id FOREIGN KEY (image_id) REFERENCES image (id)
 );
 
-CREATE TABLE slideshow
+CREATE TABLE IF NOT EXISTS slideshow
 (
     id           BIGSERIAL PRIMARY KEY,
     name         VARCHAR(50) NOT NULL,
     created_time TIMESTAMP   NOT NULL
 );
 
-CREATE TABLE slideshow_image
+CREATE TABLE IF NOT EXISTS slideshow_image
 (
     id           BIGSERIAL PRIMARY KEY,
     slideshow_id BIGINT NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE slideshow_image
     CONSTRAINT fk_image_id FOREIGN KEY (image_id) REFERENCES image (id)
 );
 
-CREATE TABLE proof_of_play
+CREATE TABLE IF NOT EXISTS proof_of_play
 (
     id           BIGSERIAL PRIMARY KEY,
     slideshow_id BIGINT    NOT NULL,
