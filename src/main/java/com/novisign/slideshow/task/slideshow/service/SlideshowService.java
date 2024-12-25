@@ -14,10 +14,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Duration;
+import java.util.*;
 
 @Service
 public class SlideshowService {
@@ -102,4 +100,38 @@ public class SlideshowService {
                 })
                 .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
     }
+
+
+    public Flux<ApiResponse> processSlideshowWithDelays(List<ApiResponse> responses) {
+        List<Integer> durations = responses.stream()
+                .map(this::extractDurationFromResponse)
+                .toList();
+
+        return Flux.fromIterable(responses)
+                .index()
+                .flatMapSequential(indexedElement -> {
+                    long index = indexedElement.getT1();
+                    ApiResponse response = indexedElement.getT2();
+
+                    long delay = (index == 0) ? 0 : durations.get((int) (index - 1));
+
+                    return Mono.delay(Duration.ofSeconds(delay))
+                            .thenReturn(response);
+                })
+                .concatWith(
+                        Mono.delay(Duration.ofSeconds(durations.get(durations.size() - 1)))
+                                .then(Mono.just(ApiResponse.success(StatusCodes.SUCCESS,
+                                        Collections.singletonList(Map.of("message", "End slideshow")))))
+                );
+    }
+
+    private Integer extractDurationFromResponse(ApiResponse response) {
+        return response.getData().stream()
+                .findFirst()
+                .flatMap(data -> data instanceof Map
+                        ? Optional.of((Integer) ((Map<?, ?>) data).get("duration"))
+                        : Optional.empty())
+                .orElse(0);
+    }
+
 }
