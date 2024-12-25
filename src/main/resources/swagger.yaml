@@ -221,13 +221,14 @@ paths:
             Content-Length:
               schema:
                 type: integer
-                example: '86'
+                example: '100'
           content:
             application/json:
               schema:
                 type: object
               example:
-                data: []
+                data:
+                  - slideshowId: 10
                 status: success
                 code: 201
                 message: Successfully processed operation
