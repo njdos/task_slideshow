@@ -41,6 +41,9 @@ public class GlobalExceptionHandler implements WebExceptionHandler {
         } else if (ex instanceof DataMappingException) {
             response = ApiResponse.error(StatusCodes.MAPPING_ERROR);
             logger.error("Data mapping error for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
+        } else if (ex instanceof TransactionRollbackException) {
+            response = ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED);
+            logger.error("Transaction failed for request URL: {}. Error: {}", exchange.getRequest().getURI(), ex.getMessage(), ex);
         } else if (ex instanceof RuntimeException) {
             response = ApiResponse.error(StatusCodes.NOT_FOUND);
             logger.error("Runtime exception occurred for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);

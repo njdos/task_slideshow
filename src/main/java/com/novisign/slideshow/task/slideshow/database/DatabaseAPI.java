@@ -40,7 +40,7 @@ public class DatabaseAPI {
     private final ProofOfPlayRepository proofOfPlayRepository;
     private final ImageRepository imageRepository;
 
-    public Mono<Boolean> saveNewImage(Image image, List<String> keywords) {
+    public Mono<Long> saveNewImage(Image image, List<String> keywords) {
         return imageTransactionService.saveNewImageWithKeywords(image, keywords);
     }
 

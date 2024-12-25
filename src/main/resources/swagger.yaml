@@ -68,8 +68,8 @@ paths:
               type: object
               example:
                 url: >-
-                  https://fastly.picsum.photos/id/643/200/300.jpg?hmac=rS-MHa0BIMHdAgm-FZ7QM36aRKEAzzhSRNRv5n4uqGc
-                duration: 30
+                  https://fastly.picsum.photos/id/1051/200/300.jpg?hmac=l1jFNN1wGY2r8gVAipnoabHxa9LKBSoOTznSjOYWsUY
+                duration: 14
       parameters:
         - name: vers
           in: path
@@ -87,16 +87,17 @@ paths:
             Content-Length:
               schema:
                 type: integer
-                example: '72'
+                example: '100'
           content:
             application/json:
               schema:
                 type: object
               example:
-                data: []
+                data:
+                  - imageId: 26
                 status: success
                 code: 201
-                message: Successfully added
+                message: Successfully processed operation
   /api/{vers}/deleteImage/{imageId}:
     delete:
       tags:
