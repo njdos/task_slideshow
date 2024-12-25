@@ -9,7 +9,6 @@ import com.novisign.slideshow.task.slideshow.exception.TransactionRollbackExcept
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -65,21 +64,22 @@ public class SlideshowTransactionService {
                 .defaultIfEmpty(false);
     }
 
-    @Transactional
     public Mono<Boolean> deleteSlideshowById(Long slideshowId) {
-        return slideshowImageRepository.findIdsSlideshowImagesBySlideshowId(slideshowId)
-                .collectList()
-                .flatMap(ids -> {
-                    if (ids.isEmpty()) {
-                        return slideshowRepository.deleteById(slideshowId);
-                    } else {
-                        return Flux.fromIterable(ids)
-                                .flatMap(slideshowImageRepository::deleteById)
-                                .collectList()
-                                .flatMap(results -> slideshowRepository.deleteById(slideshowId));
-                    }
-                })
-                .onErrorReturn(false);
+        return Mono.from(transactionalOperator.execute(status ->
+                slideshowImageRepository.findIdsSlideshowImagesBySlideshowId(slideshowId)
+                        .collectList()
+                        .flatMap(ids -> {
+                            if (ids.isEmpty()) {
+                                return slideshowRepository.deleteById(slideshowId);
+                            } else {
+                                return Flux.fromIterable(ids)
+                                        .flatMap(slideshowImageRepository::deleteById)
+                                        .collectList()
+                                        .flatMap(results -> slideshowRepository.deleteById(slideshowId));
+                            }
+                        })
+                        .onErrorReturn(false)
+        ));
     }
 
     public Flux<ApiResponse> slideshowOrder(Long slideshowId) {

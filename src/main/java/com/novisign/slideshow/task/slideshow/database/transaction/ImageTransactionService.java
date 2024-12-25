@@ -8,7 +8,6 @@ import com.novisign.slideshow.task.slideshow.exception.TransactionRollbackExcept
 import com.novisign.slideshow.task.slideshow.factory.EntityFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -65,21 +64,22 @@ public class ImageTransactionService {
     }
 
 
-    @Transactional
     public Mono<Boolean> deleteImageById(Long imageId) {
-        return imageSearchEngineRepository.findIdsImageSearchByImageId(imageId)
-                .collectList()
-                .flatMap(ids -> {
-                    if (ids.isEmpty()) {
-                        return imageRepository.deleteById(imageId);
-                    } else {
-                        return Flux.fromIterable(ids)
-                                .flatMap(imageSearchEngineRepository::deleteById)
-                                .collectList()
-                                .flatMap(results -> imageRepository.deleteById(imageId));
-                    }
-                })
-                .onErrorReturn(false);
+        return Mono.from(transactionalOperator.execute(status ->
+                imageSearchEngineRepository.findIdsImageSearchByImageId(imageId)
+                        .collectList()
+                        .flatMap(ids -> {
+                            if (ids.isEmpty()) {
+                                return imageRepository.deleteById(imageId);
+                            } else {
+                                return Flux.fromIterable(ids)
+                                        .flatMap(imageSearchEngineRepository::deleteById)
+                                        .collectList()
+                                        .flatMap(results -> imageRepository.deleteById(imageId));
+                            }
+                        })
+                        .onErrorReturn(false)
+        ));
     }
 
     private Mono<Boolean> saveKeywords(Long imageId, List<String> keywords) {
