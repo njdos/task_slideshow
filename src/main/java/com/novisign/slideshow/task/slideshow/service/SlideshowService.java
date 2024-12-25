@@ -120,7 +120,7 @@ public class SlideshowService {
                 })
                 .concatWith(
                         Mono.delay(Duration.ofSeconds(durations.get(durations.size() - 1)))
-                                .then(Mono.just(ApiResponse.success(StatusCodes.SUCCESS,
+                                .then(Mono.just(ApiResponse.success(StatusCodes.OK,
                                         Collections.singletonList(Map.of("message", "End slideshow")))))
                 );
     }
