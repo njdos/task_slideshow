@@ -60,7 +60,7 @@ public class DatabaseAPI {
         return imageRepository.findImageIdAndDurationByIds(ids);
     }
 
-    public Mono<Boolean> saveSlideshow(String name, Map<Long, Integer> correctSlideshow) {
+    public Mono<Long> saveSlideshow(String name, Map<Long, Integer> correctSlideshow) {
         return slideshowTransactionService.saveNewSlideshow(name, correctSlideshow);
     }
 

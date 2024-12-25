@@ -45,12 +45,16 @@ public class SlideshowService {
                     return databaseAPI.findImageIdAndDurationByIds(ids)
                             .collectMap(Image::getId, Image::getDuration)
                             .flatMap(mappedImageIdAndDuration -> validateAndSaveSlideshow(request, mappedImageIdAndDuration))
-                            .map(saved -> ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList()))
+                            .flatMap(slideshowId -> {
+                                ApiResponse successResponse = ApiResponse.success(StatusCodes.SUCCESS,
+                                        Collections.singletonList(Map.of("slideshowId", slideshowId)));
+                                return Mono.just(successResponse);
+                            })
                             .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
                 });
     }
 
-    private Mono<Boolean> validateAndSaveSlideshow(AddSlideshowRequest request, Map<Long, Integer> mappedImageIdAndDuration) {
+    private Mono<Long> validateAndSaveSlideshow(AddSlideshowRequest request, Map<Long, Integer> mappedImageIdAndDuration) {
         return Flux.fromIterable(request.images())
                 .flatMap(image -> {
                     boolean isExistImage = mappedImageIdAndDuration.containsKey(image.image_id());
