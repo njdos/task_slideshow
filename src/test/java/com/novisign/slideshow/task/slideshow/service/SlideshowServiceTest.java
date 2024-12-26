@@ -39,7 +39,6 @@ class SlideshowServiceTest {
         slideshowService = new SlideshowService(databaseAPI, slideShowProcessor, validator);
     }
 
-
     @Test
     void testAddSlideshow_invalidRequest() {
         AddSlideshowRequest request = new AddSlideshowRequest("Test Slideshow", List.of());
@@ -144,4 +143,24 @@ class SlideshowServiceTest {
 
         verify(databaseAPI, times(1)).saveProofOfPlay(proofOfPlay);
     }
+
+    @Test
+    void testProcessSlideshowWithDelays() {
+        List<ApiResponse> responses = List.of(
+                ApiResponse.success(StatusCodes.OK, List.of(Collections.singletonMap("duration", 3))),
+                ApiResponse.success(StatusCodes.OK, List.of(Collections.singletonMap("duration", 5)))
+        );
+
+        when(databaseAPI.slideshowOrder(anyLong()))
+                .thenReturn(Flux.just(ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList())));
+
+        Flux<ApiResponse> result = slideshowService.processSlideshowWithDelays(responses);
+
+        StepVerifier.create(result)
+                .expectNextMatches(response -> response.getCode() == StatusCodes.OK.getCode())
+                .expectNextMatches(response -> response.getCode() == StatusCodes.OK.getCode())
+                .expectComplete()
+                .verifyLater();
+    }
+
 }

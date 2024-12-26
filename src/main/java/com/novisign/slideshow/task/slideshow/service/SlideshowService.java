@@ -132,9 +132,7 @@ public class SlideshowService {
     private Integer extractDurationFromResponse(ApiResponse response) {
         return response.getData().stream()
                 .findFirst()
-                .flatMap(data -> data instanceof Map
-                        ? Optional.of((Integer) ((Map<?, ?>) data).get("duration"))
-                        : Optional.empty())
+                .flatMap(data -> Optional.of((Integer) ((Map<?, ?>) data).get("duration")))
                 .orElse(0);
     }
 
