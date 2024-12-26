@@ -15,8 +15,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class ImageProcessor {
@@ -58,7 +58,14 @@ public class ImageProcessor {
         Image image = new Image(request.url(), request.duration(), imageType.get());
 
         return databaseAPI.saveNewImage(image, keywords)
-                .map(savedImage -> ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList()))
+                .map(savedImageId -> {
+                    if (savedImageId > 0) {
+                        Map<String, Object> responseData = Map.of("imageId", savedImageId);
+                        return ApiResponse.success(StatusCodes.SUCCESS, List.of(responseData));
+                    } else {
+                        return ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED);
+                    }
+                })
                 .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
     }
 }

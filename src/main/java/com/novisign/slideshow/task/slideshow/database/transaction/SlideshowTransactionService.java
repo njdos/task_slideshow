@@ -5,10 +5,12 @@ import com.novisign.slideshow.task.slideshow.database.repository.ImageRepository
 import com.novisign.slideshow.task.slideshow.database.repository.SlideshowImageRepository;
 import com.novisign.slideshow.task.slideshow.database.repository.SlideshowRepository;
 import com.novisign.slideshow.task.slideshow.entity.SlideshowImage;
+import com.novisign.slideshow.task.slideshow.exception.TransactionRollbackException;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -22,26 +24,37 @@ public class SlideshowTransactionService {
     @Autowired
     public SlideshowTransactionService(SlideshowRepository slideshowRepository,
                                        SlideshowImageRepository slideshowImageRepository,
-                                       ImageRepository imageRepository) {
+                                       ImageRepository imageRepository,
+                                       TransactionalOperator transactionalOperator) {
         this.slideshowRepository = slideshowRepository;
         this.slideshowImageRepository = slideshowImageRepository;
         this.imageRepository = imageRepository;
+        this.transactionalOperator = transactionalOperator;
     }
 
     private final SlideshowRepository slideshowRepository;
     private final SlideshowImageRepository slideshowImageRepository;
     private final ImageRepository imageRepository;
+    private final TransactionalOperator transactionalOperator;
 
-    @Transactional
-    public Mono<Boolean> saveNewSlideshow(String name, Map<Long, Integer> correctSlideshow) {
-        return slideshowRepository.save(name)
-                .flatMap(slideshowId -> {
-                    if (slideshowId <= 0) return Mono.just(false);
+    public Mono<Long> saveNewSlideshow(String name, Map<Long, Integer> correctSlideshow) {
+        return Mono.from(transactionalOperator.execute(status ->
+                slideshowRepository.save(name)
+                        .flatMap(slideshowId -> {
+                            if (slideshowId <= 0) {
+                                return Mono.error(new TransactionRollbackException("Failed to save slideshow"));
+                            }
 
-                    return saveSlideshow(slideshowId, correctSlideshow)
-                            .flatMap(Mono::just);
-                })
-                .onErrorResume(error -> Mono.just(false));
+                            return saveSlideshow(slideshowId, correctSlideshow)
+                                    .flatMap(saved -> {
+                                        if (!saved) {
+                                            return Mono.error(new TransactionRollbackException("Failed to save slideshow images"));
+                                        }
+                                        return Mono.just(slideshowId);
+                                    });
+                        })
+                        .onErrorResume(error -> Mono.just(-1L))
+        ));
     }
 
     private Mono<Boolean> saveSlideshow(Long slideshowId, Map<Long, Integer> correctSlideshow) {

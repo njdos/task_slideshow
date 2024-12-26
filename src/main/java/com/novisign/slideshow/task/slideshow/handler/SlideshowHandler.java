@@ -16,10 +16,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
 
 @Component
 public class SlideshowHandler {
@@ -69,23 +66,8 @@ public class SlideshowHandler {
         return converterUtils.parseToLong(request.pathVariable("id"))
                 .flatMapMany(slideshowService::slideshowOrder)
                 .onErrorResume(e -> Flux.just(ApiResponse.error(StatusCodes.INVALID_REQUEST_BODY)))
-                .index()
-                .flatMapSequential(indexedElement -> {
-                    long index = indexedElement.getT1();
-                    ApiResponse response = indexedElement.getT2();
-
-                    Integer duration = response.getData().stream()
-                            .findFirst()
-                            .flatMap(data -> data instanceof Map ? Optional.of((Integer) ((Map<?, ?>) data).get("duration")) : Optional.empty())
-                            .orElse(0);
-
-                    if (index == 0) {
-                        return Mono.just(response);
-                    } else {
-                        return Mono.delay(Duration.ofSeconds(duration))
-                                .thenReturn(response);
-                    }
-                })
+                .collectList()
+                .flatMapMany(slideshowService::processSlideshowWithDelays)
                 .as(flux -> ServerResponse.ok()
                         .contentType(MediaType.TEXT_EVENT_STREAM)
                         .body(flux, ApiResponse.class));

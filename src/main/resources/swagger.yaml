@@ -68,8 +68,8 @@ paths:
               type: object
               example:
                 url: >-
-                  https://fastly.picsum.photos/id/643/200/300.jpg?hmac=rS-MHa0BIMHdAgm-FZ7QM36aRKEAzzhSRNRv5n4uqGc
-                duration: 30
+                  https://fastly.picsum.photos/id/1051/200/300.jpg?hmac=l1jFNN1wGY2r8gVAipnoabHxa9LKBSoOTznSjOYWsUY
+                duration: 14
       parameters:
         - name: vers
           in: path
@@ -87,16 +87,17 @@ paths:
             Content-Length:
               schema:
                 type: integer
-                example: '72'
+                example: '100'
           content:
             application/json:
               schema:
                 type: object
               example:
-                data: []
+                data:
+                  - imageId: 26
                 status: success
                 code: 201
-                message: Successfully added
+                message: Successfully processed operation
   /api/{vers}/deleteImage/{imageId}:
     delete:
       tags:
@@ -220,13 +221,14 @@ paths:
             Content-Length:
               schema:
                 type: integer
-                example: '86'
+                example: '100'
           content:
             application/json:
               schema:
                 type: object
               example:
-                data: []
+                data:
+                  - slideshowId: 10
                 status: success
                 code: 201
                 message: Successfully processed operation
@@ -278,11 +280,6 @@ paths:
           schema:
             type: string
           required: true
-        - name: slideshowId
-          in: path
-          schema:
-            type: integer
-          required: true
       responses:
         '200':
           description: OK
@@ -300,10 +297,16 @@ paths:
               schema:
                 type: string
               example: >+
-                data:{"data":[{"imageData":{"id":5,"url":"https://fastly.picsum.photos/id/892/200/300.jpg?hmac=9MUtm-RM2UIFVmP8I80S9TuWKk93ZEPqQLpOf-y1BwE","duration":6,"type":"image/jpeg","addedTime":"2024-12-15T01:20:09.528432"},"imageId":5,"slideshowId":5,"duration":2}],"status":"success","code":200,"message":"Ok"}
+                data:{"data":[{"duration":10,"imageData":{"id":5,"url":"https://fastly.picsum.photos/id/892/200/300.jpg?hmac=9MUtm-RM2UIFVmP8I80S9TuWKk93ZEPqQLpOf-y1BwE","duration":6,"type":"image/jpeg","addedTime":"2024-12-15T01:20:09.528432"},"imageId":5,"slideshowId":8}],"status":"success","code":200,"message":"Ok"}
 
 
-                data:{"data":[{"imageData":{"id":10,"url":"https://fastly.picsum.photos/id/1080/200/300.jpg?hmac=3jCG4X8ni9cpiEppj6KVvqhpJ_owIFtDQOABJmhG1I0","duration":30,"type":"image/jpeg","addedTime":"2024-12-17T01:36:11.399025"},"imageId":10,"slideshowId":5,"duration":10}],"status":"success","code":200,"message":"Ok"}
+                data:{"data":[{"duration":30,"imageData":{"id":10,"url":"https://fastly.picsum.photos/id/1080/200/300.jpg?hmac=3jCG4X8ni9cpiEppj6KVvqhpJ_owIFtDQOABJmhG1I0","duration":30,"type":"image/jpeg","addedTime":"2024-12-17T01:36:11.399025"},"imageId":10,"slideshowId":8}],"status":"success","code":200,"message":"Ok"}
+
+
+                data:{"data":[{"duration":7,"imageData":{"id":11,"url":"https://fastly.picsum.photos/id/297/200/300.jpg?hmac=SF0Y51mRP7i6CoLBIuliqQwDIUJNyf63_r3xhamVSLE","duration":30,"type":"image/jpeg","addedTime":"2024-12-18T23:06:12.148957"},"imageId":11,"slideshowId":8}],"status":"success","code":200,"message":"Ok"}
+
+
+                data:{"data":[{"message":"End slideshow"}],"status":"success","code":200,"message":"Ok"}
 
   /api/{vers}/slideShow/{slideshowId}/proof-of-play/{imageId}:
     post:

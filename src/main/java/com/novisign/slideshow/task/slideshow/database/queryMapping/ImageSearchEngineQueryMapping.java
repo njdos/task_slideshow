@@ -13,7 +13,7 @@ public enum ImageSearchEngineQueryMapping implements QueryMapping {
             VALUES (:value, :type, :imageId)
             RETURNING id
             """,
-            null
+            Mapper.mapRowToId
     ),
     GET_PK_BY_IMAGE_ID(
             "SELECT id FROM image_search_engine WHERE image_id = :image_id",

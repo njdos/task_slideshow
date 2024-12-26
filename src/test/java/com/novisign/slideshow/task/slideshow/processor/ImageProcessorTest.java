@@ -56,14 +56,12 @@ class ImageProcessorTest {
         when(mockUrlUtils.extractImageType(validationResponse)).thenReturn(java.util.Optional.of("image/png"));
         when(mockUrlUtils.extractKeywordsFromUrl(imageUrl)).thenReturn(List.of("keyword1", "keyword2"));
 
-        when(mockDatabaseAPI.saveNewImage(any(Image.class), anyList())).thenReturn(Mono.just(true));
+        when(mockDatabaseAPI.saveNewImage(any(Image.class), anyList())).thenReturn(Mono.just(1L));
 
         Mono<ApiResponse> responseMono = imageProcessor.processNewImage(request);
 
         StepVerifier.create(responseMono)
-                .expectNextMatches(response ->
-                        response.getCode() == StatusCodes.SUCCESS.getCode()
-                )
+                .expectNextMatches(response -> response.getCode() == StatusCodes.SUCCESS.getCode())
                 .verifyComplete();
     }
 
