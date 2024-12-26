@@ -93,6 +93,19 @@ class ImageUtilsTest {
     }
 
     @Test
+    void testCreateSearchQuery_invalidDuration() {
+        when(searchRequest.keyword()).thenReturn(null);
+        when(searchRequest.duration()).thenReturn(-1);
+        when(validator.validateDuration(anyInt())).thenReturn(Mono.just(false));
+
+        Mono<String> queryMono = imageUtils.createSearchQuery(searchRequest);
+
+        queryMono.subscribe(query -> {
+            assertNull(query);
+        });
+    }
+
+    @Test
     void testBindConfigurer_withKeyword() {
         lenient().when(searchRequest.keyword()).thenReturn("example");
         lenient().when(searchRequest.duration()).thenReturn(null);
@@ -101,7 +114,6 @@ class ImageUtilsTest {
 
         assertNotNull(bindConfigurer);
     }
-
 
     @Test
     void testBindConfigurer_withDuration() {
@@ -121,5 +133,18 @@ class ImageUtilsTest {
         BindConfigurer bindConfigurer = imageUtils.bindConfigurer(searchRequest);
 
         assertNotNull(bindConfigurer);
+    }
+
+    @Test
+    void testCreateSearchQuery_invalidKeyword() {
+        when(searchRequest.keyword()).thenReturn("");
+        when(searchRequest.duration()).thenReturn(5);
+        when(validator.validateDuration(anyInt())).thenReturn(Mono.just(true));
+
+        Mono<String> queryMono = imageUtils.createSearchQuery(searchRequest);
+
+        queryMono.subscribe(query -> {
+            assertNull(query);
+        });
     }
 }

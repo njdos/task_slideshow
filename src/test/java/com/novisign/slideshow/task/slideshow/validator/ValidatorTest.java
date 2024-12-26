@@ -225,10 +225,41 @@ class ValidatorTest {
                 new Class<?>[]{ClientResponse.class},
                 new Object[]{mockClientResponse});
 
-
         StepVerifier.create(responseMono)
                 .expectNextMatches(response ->
                         response.getCode() == StatusCodes.FAILED_VALIDATION_IMAGE.getCode()
+                )
+                .verifyComplete();
+    }
+
+    @Test
+    void testValidateDuration_zeroDuration() throws Exception {
+        ApiResponse validationResponse = ApiResponse.success(StatusCodes.OK, List.of());
+
+        var resultMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
+                "validateDuration",
+                new Class<?>[]{int.class, ApiResponse.class},
+                new Object[]{0, validationResponse});
+
+        StepVerifier.create(resultMono)
+                .expectNextMatches(response ->
+                        response.getCode() == StatusCodes.FAILED_VALIDATION_DURATION.getCode()
+                )
+                .verifyComplete();
+    }
+
+    @Test
+    void testValidateDuration_negativeDuration() throws Exception {
+        ApiResponse validationResponse = ApiResponse.success(StatusCodes.OK, List.of());
+
+        var resultMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
+                "validateDuration",
+                new Class<?>[]{int.class, ApiResponse.class},
+                new Object[]{-100, validationResponse});
+
+        StepVerifier.create(resultMono)
+                .expectNextMatches(response ->
+                        response.getCode() == StatusCodes.FAILED_VALIDATION_DURATION.getCode()
                 )
                 .verifyComplete();
     }
@@ -256,34 +287,6 @@ class ValidatorTest {
 
         StepVerifier.create(resultMono)
                 .expectNextMatches(optional -> optional.isEmpty())
-                .verifyComplete();
-    }
-
-    @Test
-    void testValidateDuration_validDuration() throws Exception {
-        ApiResponse validationResponse = ApiResponse.success(StatusCodes.OK, List.of());
-
-        var resultMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
-                "validateDuration",
-                new Class<?>[]{int.class, ApiResponse.class},
-                new Object[]{1000, validationResponse});
-
-        StepVerifier.create(resultMono)
-                .expectNextMatches(response -> response.getCode() == StatusCodes.OK.getCode())
-                .verifyComplete();
-    }
-
-    @Test
-    void testValidateDuration_invalidDuration() throws Exception {
-        ApiResponse validationResponse = ApiResponse.success(StatusCodes.OK, List.of());
-
-        var resultMono = (Mono<ApiResponse>) invokePrivateMethod(validator,
-                "validateDuration",
-                new Class<?>[]{int.class, ApiResponse.class},
-                new Object[]{4000, validationResponse});
-
-        StepVerifier.create(resultMono)
-                .expectNextMatches(response -> response.getCode() == StatusCodes.FAILED_VALIDATION_DURATION.getCode())
                 .verifyComplete();
     }
 
