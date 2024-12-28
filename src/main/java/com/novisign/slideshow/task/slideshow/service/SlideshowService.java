@@ -9,7 +9,7 @@ import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.processor.SlideShowProcessor;
 import com.novisign.slideshow.task.slideshow.utils.ApiResponseUtils;
 import com.novisign.slideshow.task.slideshow.validator.Validator;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -18,18 +18,12 @@ import java.time.Duration;
 import java.util.*;
 
 @Service
+@AllArgsConstructor
 public class SlideshowService {
 
     private final DatabaseAPI databaseAPI;
     private final SlideShowProcessor slideShowProcessor;
     private final Validator validator;
-
-    @Autowired
-    public SlideshowService(DatabaseAPI databaseAPI, SlideShowProcessor slideShowProcessor, Validator validator) {
-        this.databaseAPI = databaseAPI;
-        this.slideShowProcessor = slideShowProcessor;
-        this.validator = validator;
-    }
 
     public Mono<ApiResponse> addSlideshow(AddSlideshowRequest request) {
         return slideShowProcessor.isValidRequest(request)

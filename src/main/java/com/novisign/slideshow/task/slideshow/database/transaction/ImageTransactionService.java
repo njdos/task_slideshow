@@ -6,7 +6,7 @@ import com.novisign.slideshow.task.slideshow.database.repository.ImageSearchEngi
 import com.novisign.slideshow.task.slideshow.entity.Image;
 import com.novisign.slideshow.task.slideshow.exception.TransactionRollbackException;
 import com.novisign.slideshow.task.slideshow.factory.EntityFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
@@ -15,22 +15,12 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class ImageTransactionService {
 
-    @Autowired
-    public ImageTransactionService(ImageRepository imageRepository,
-                                   ImageSearchEngineRepository imageSearchEngineRepository,
-                                   EntityFactory entityFactory,
-                                   TransactionalOperator transactionalOperator) {
-        this.imageRepository = imageRepository;
-        this.imageSearchEngineRepository = imageSearchEngineRepository;
-        this.entityFactory = entityFactory;
-        this.transactionalOperator = transactionalOperator;
-    }
 
     private final ImageRepository imageRepository;
     private final ImageSearchEngineRepository imageSearchEngineRepository;
-
     private final EntityFactory entityFactory;
     private final TransactionalOperator transactionalOperator;
 

@@ -5,20 +5,16 @@ import com.novisign.slideshow.task.slideshow.database.helper.DatabaseHelper;
 import com.novisign.slideshow.task.slideshow.database.queryMapping.DynamicQueryMapping;
 import com.novisign.slideshow.task.slideshow.database.queryMapping.ImageSearchEngineQueryMapping;
 import com.novisign.slideshow.task.slideshow.entity.ImageSearchEngine;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Repository
+@AllArgsConstructor
 public class ImageSearchEngineRepository {
 
     private final DatabaseHelper databaseHelper;
-
-    @Autowired
-    public ImageSearchEngineRepository(DatabaseHelper databaseHelper) {
-        this.databaseHelper = databaseHelper;
-    }
 
 
     public Mono<Long> save(ImageSearchEngine imageSearchEngine) {

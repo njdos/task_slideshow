@@ -8,7 +8,7 @@ import com.novisign.slideshow.task.slideshow.database.repository.ImageSearchEngi
 import com.novisign.slideshow.task.slideshow.database.repository.SlideshowImageRepository;
 import com.novisign.slideshow.task.slideshow.entity.SlideshowImage;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -19,16 +19,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class ImageSearchTransactionService {
-
-    @Autowired
-    public ImageSearchTransactionService(ImageSearchEngineRepository imageSearchEngineRepository,
-                                         SlideshowImageRepository slideshowImageRepository,
-                                         ImageRepository imageRepository) {
-        this.imageSearchEngineRepository = imageSearchEngineRepository;
-        this.slideshowImageRepository = slideshowImageRepository;
-        this.imageRepository = imageRepository;
-    }
 
     private final ImageSearchEngineRepository imageSearchEngineRepository;
     private final SlideshowImageRepository slideshowImageRepository;

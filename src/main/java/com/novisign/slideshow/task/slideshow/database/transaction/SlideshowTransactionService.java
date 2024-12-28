@@ -7,7 +7,7 @@ import com.novisign.slideshow.task.slideshow.database.repository.SlideshowReposi
 import com.novisign.slideshow.task.slideshow.entity.SlideshowImage;
 import com.novisign.slideshow.task.slideshow.exception.TransactionRollbackException;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
@@ -18,18 +18,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class SlideshowTransactionService {
-
-    @Autowired
-    public SlideshowTransactionService(SlideshowRepository slideshowRepository,
-                                       SlideshowImageRepository slideshowImageRepository,
-                                       ImageRepository imageRepository,
-                                       TransactionalOperator transactionalOperator) {
-        this.slideshowRepository = slideshowRepository;
-        this.slideshowImageRepository = slideshowImageRepository;
-        this.imageRepository = imageRepository;
-        this.transactionalOperator = transactionalOperator;
-    }
 
     private final SlideshowRepository slideshowRepository;
     private final SlideshowImageRepository slideshowImageRepository;

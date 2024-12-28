@@ -10,7 +10,7 @@ import com.novisign.slideshow.task.slideshow.database.transaction.SlideshowTrans
 import com.novisign.slideshow.task.slideshow.entity.Image;
 import com.novisign.slideshow.task.slideshow.entity.ProofOfPlay;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,20 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@AllArgsConstructor
 public class DatabaseAPI {
-
-    @Autowired
-    public DatabaseAPI(ImageTransactionService imageTransactionService,
-                       SlideshowTransactionService slideshowTransactionService,
-                       ImageSearchTransactionService imageSearchTransactionService,
-                       ProofOfPlayRepository proofOfPlayRepository,
-                       ImageRepository imageRepository) {
-        this.imageTransactionService = imageTransactionService;
-        this.slideshowTransactionService = slideshowTransactionService;
-        this.imageSearchTransactionService = imageSearchTransactionService;
-        this.proofOfPlayRepository = proofOfPlayRepository;
-        this.imageRepository = imageRepository;
-    }
 
     private final ImageTransactionService imageTransactionService;
     private final SlideshowTransactionService slideshowTransactionService;

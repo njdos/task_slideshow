@@ -11,25 +11,19 @@ import com.novisign.slideshow.task.slideshow.model.SearchRequest;
 import com.novisign.slideshow.task.slideshow.processor.ImageProcessor;
 import com.novisign.slideshow.task.slideshow.utils.ApiResponseUtils;
 import com.novisign.slideshow.task.slideshow.utils.ImageUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 
 @Service
+@AllArgsConstructor
 public class ImageService {
 
     private final DatabaseAPI databaseAPI;
     private final ImageProcessor imageProcessor;
     private final ImageUtils imageUtils;
-
-    @Autowired
-    public ImageService(DatabaseAPI databaseAPI, ImageProcessor imageProcessor, ImageUtils imageUtils) {
-        this.databaseAPI = databaseAPI;
-        this.imageProcessor = imageProcessor;
-        this.imageUtils = imageUtils;
-    }
 
     public Mono<ApiResponse> addImage(AddImageRequest request) {
         return databaseAPI.findImageByUrl(request.url())

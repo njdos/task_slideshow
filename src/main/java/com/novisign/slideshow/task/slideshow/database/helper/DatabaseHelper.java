@@ -3,19 +3,15 @@ package com.novisign.slideshow.task.slideshow.database.helper;
 import com.novisign.slideshow.task.slideshow.database.queryMapping.QueryMapping;
 import com.novisign.slideshow.task.slideshow.exception.CustomDatabaseException;
 import com.novisign.slideshow.task.slideshow.exception.DataMappingException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
+@AllArgsConstructor
 public class DatabaseHelper {
-
-    @Autowired
-    public DatabaseHelper(DatabaseClient databaseClient) {
-        this.databaseClient = databaseClient;
-    }
 
     private final DatabaseClient databaseClient;
 

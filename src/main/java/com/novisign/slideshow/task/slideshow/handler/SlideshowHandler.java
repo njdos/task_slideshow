@@ -7,7 +7,7 @@ import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.service.SlideshowService;
 import com.novisign.slideshow.task.slideshow.utils.ApiResponseUtils;
 import com.novisign.slideshow.task.slideshow.utils.ConverterUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -19,13 +19,9 @@ import reactor.core.publisher.Mono;
 import java.util.Collections;
 
 @Component
+@AllArgsConstructor
 public class SlideshowHandler {
 
-    @Autowired
-    public SlideshowHandler(SlideshowService slideshowService, ConverterUtils converterUtils) {
-        this.slideshowService = slideshowService;
-        this.converterUtils = converterUtils;
-    }
 
     private final SlideshowService slideshowService;
     private final ConverterUtils converterUtils;

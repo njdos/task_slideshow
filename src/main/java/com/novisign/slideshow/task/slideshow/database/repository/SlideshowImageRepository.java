@@ -3,7 +3,7 @@ package com.novisign.slideshow.task.slideshow.database.repository;
 import com.novisign.slideshow.task.slideshow.database.helper.DatabaseHelper;
 import com.novisign.slideshow.task.slideshow.database.queryMapping.SlideshowImageQueryMapping;
 import com.novisign.slideshow.task.slideshow.entity.SlideshowImage;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -11,14 +11,10 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Repository
+@AllArgsConstructor
 public class SlideshowImageRepository {
 
     private final DatabaseHelper databaseHelper;
-
-    @Autowired
-    public SlideshowImageRepository(DatabaseHelper databaseHelper) {
-        this.databaseHelper = databaseHelper;
-    }
 
     public Mono<Long> save(Long slideshowId, Long imageId, Integer duration) {
         return databaseHelper.executeSaveOperation(

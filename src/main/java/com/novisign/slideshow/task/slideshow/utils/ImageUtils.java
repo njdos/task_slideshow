@@ -4,17 +4,13 @@ import com.novisign.slideshow.task.slideshow.constant.ImageSearchTypes;
 import com.novisign.slideshow.task.slideshow.database.helper.BindConfigurer;
 import com.novisign.slideshow.task.slideshow.model.SearchRequest;
 import com.novisign.slideshow.task.slideshow.validator.Validator;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
+@AllArgsConstructor
 public class ImageUtils {
-
-    @Autowired
-    public ImageUtils(Validator validator) {
-        this.validator = validator;
-    }
 
     private final Validator validator;
 

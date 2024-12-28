@@ -2,21 +2,17 @@ package com.novisign.slideshow.task.slideshow.database.repository;
 
 import com.novisign.slideshow.task.slideshow.database.helper.DatabaseHelper;
 import com.novisign.slideshow.task.slideshow.database.queryMapping.SlideshowQueryMapping;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 
 @Repository
+@AllArgsConstructor
 public class SlideshowRepository {
 
     private final DatabaseHelper databaseHelper;
-
-    @Autowired
-    public SlideshowRepository(DatabaseHelper databaseHelper) {
-        this.databaseHelper = databaseHelper;
-    }
 
     public Mono<Long> save(String name) {
         return databaseHelper.executeSaveOperation(

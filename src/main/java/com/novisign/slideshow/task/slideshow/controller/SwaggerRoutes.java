@@ -1,7 +1,7 @@
 package com.novisign.slideshow.task.slideshow.controller;
 
 import com.novisign.slideshow.task.slideshow.handler.SwaggerHandler;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -11,12 +11,8 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Configuration
+@AllArgsConstructor
 public class SwaggerRoutes {
-
-    @Autowired
-    public SwaggerRoutes(SwaggerHandler swaggerHandler) {
-        this.swaggerHandler = swaggerHandler;
-    }
 
     private final SwaggerHandler swaggerHandler;
 

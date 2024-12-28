@@ -6,7 +6,7 @@ import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.model.SearchRequest;
 import com.novisign.slideshow.task.slideshow.service.ImageService;
 import com.novisign.slideshow.task.slideshow.utils.ApiResponseUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -14,12 +14,8 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 @Component
+@AllArgsConstructor
 public class ImageHandler {
-
-    @Autowired
-    public ImageHandler(ImageService imageService) {
-        this.imageService = imageService;
-    }
 
     private final ImageService imageService;
 
