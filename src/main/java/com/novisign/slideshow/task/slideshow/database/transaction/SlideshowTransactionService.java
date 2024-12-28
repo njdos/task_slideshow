@@ -27,7 +27,7 @@ public class SlideshowTransactionService {
     private final TransactionalOperator transactionalOperator;
 
     public Mono<Long> saveNewSlideshow(String name, Map<Long, Integer> correctSlideshow) {
-        return Mono.from(transactionalOperator.execute(status ->
+        return transactionalOperator.transactional(
                 slideshowRepository.save(name)
                         .flatMap(slideshowId -> {
                             if (slideshowId <= 0) {
@@ -43,7 +43,7 @@ public class SlideshowTransactionService {
                                     });
                         })
                         .onErrorResume(error -> Mono.just(-1L))
-        ));
+        );
     }
 
     private Mono<Boolean> saveSlideshow(Long slideshowId, Map<Long, Integer> correctSlideshow) {
@@ -55,7 +55,7 @@ public class SlideshowTransactionService {
     }
 
     public Mono<Boolean> deleteSlideshowById(Long slideshowId) {
-        return Mono.from(transactionalOperator.execute(status ->
+        return transactionalOperator.transactional(
                 slideshowImageRepository.findIdsSlideshowImagesBySlideshowId(slideshowId)
                         .collectList()
                         .flatMap(ids -> {
@@ -69,7 +69,7 @@ public class SlideshowTransactionService {
                             }
                         })
                         .onErrorReturn(false)
-        ));
+        );
     }
 
     public Flux<ApiResponse> slideshowOrder(Long slideshowId) {

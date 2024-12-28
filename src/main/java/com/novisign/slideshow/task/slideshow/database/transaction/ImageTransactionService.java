@@ -26,36 +26,29 @@ public class ImageTransactionService {
 
 
     public Mono<Long> saveNewImageWithKeywords(Image image, List<String> keywords) {
-        return Mono.from(transactionalOperator.execute(status ->
+        return transactionalOperator.transactional(
                 imageRepository.save(image)
-                        .flatMap(imageId -> {
-                            if (imageId <= 0) {
-                                return Mono.error(new TransactionRollbackException("Failed to save image"));
-                            }
+                        .flatMap(savedImageId -> saveKeywords(savedImageId, keywords)
+                                .flatMap(keywordsSaved -> {
+                                    if (!keywordsSaved) {
+                                        return Mono.error(new TransactionRollbackException("Failed to save keywords"));
+                                    }
 
-
-                            return saveKeywords(imageId, keywords)
-                                    .flatMap(keywordsSaved -> {
-                                        if (!keywordsSaved) {
-                                            return Mono.error(new TransactionRollbackException("Failed to save keywords"));
-                                        }
-
-                                        return saveDuration(imageId, image.getDuration().toString())
-                                                .flatMap(durationSaved -> {
-                                                    if (!durationSaved) {
-                                                        return Mono.error(new TransactionRollbackException("Failed to save duration"));
-                                                    }
-                                                    return Mono.just(imageId);
-                                                });
-                                    });
-                        })
-                        .onErrorResume(error -> Mono.just(-1L))
-        ));
+                                    return saveDuration(savedImageId, image.getDuration().toString())
+                                            .flatMap(durationSaved -> {
+                                                if (!durationSaved) {
+                                                    return Mono.error(new TransactionRollbackException("Failed to save duration"));
+                                                }
+                                                return Mono.just(savedImageId);
+                                            });
+                                }))
+                        .onErrorResume(error -> Mono.error(new TransactionRollbackException("Transaction failed")))
+        );
     }
 
 
     public Mono<Boolean> deleteImageById(Long imageId) {
-        return Mono.from(transactionalOperator.execute(status ->
+        return transactionalOperator.transactional(
                 imageSearchEngineRepository.findIdsImageSearchByImageId(imageId)
                         .collectList()
                         .flatMap(ids -> {
@@ -69,7 +62,7 @@ public class ImageTransactionService {
                             }
                         })
                         .onErrorReturn(false)
-        ));
+        );
     }
 
     private Mono<Boolean> saveKeywords(Long imageId, List<String> keywords) {

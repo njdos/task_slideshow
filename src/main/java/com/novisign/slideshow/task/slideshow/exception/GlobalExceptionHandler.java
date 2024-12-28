@@ -4,8 +4,7 @@ import com.novisign.slideshow.task.slideshow.constant.StatusCodes;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.utils.JsonUtils;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -18,9 +17,9 @@ import java.nio.charset.StandardCharsets;
 @Component
 @Order(-2)
 @AllArgsConstructor
+@Slf4j
 public class GlobalExceptionHandler implements WebExceptionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     private final JsonUtils jsonUtils;
 
     @Override
@@ -30,22 +29,22 @@ public class GlobalExceptionHandler implements WebExceptionHandler {
         String requestUrl = exchange.getRequest().getURI().toString();
         if (ex instanceof JsonSerializationException) {
             response = ApiResponse.error(StatusCodes.SERIALIZATION_ERROR);
-            logger.error("JSON serialization error for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
+            log.error("JSON serialization error for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
         } else if (ex instanceof CustomDatabaseException) {
             response = ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED);
-            logger.error("Database operation failed for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
+            log.error("Database operation failed for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
         } else if (ex instanceof DataMappingException) {
             response = ApiResponse.error(StatusCodes.MAPPING_ERROR);
-            logger.error("Data mapping error for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
+            log.error("Data mapping error for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
         } else if (ex instanceof TransactionRollbackException) {
             response = ApiResponse.error(StatusCodes.DATABASE_OPERATION_FAILED);
-            logger.error("Transaction failed for request URL: {}. Error: {}", exchange.getRequest().getURI(), ex.getMessage(), ex);
+            log.error("Transaction failed for request URL: {}. Error: {}", exchange.getRequest().getURI(), ex.getMessage(), ex);
         } else if (ex instanceof RuntimeException) {
             response = ApiResponse.error(StatusCodes.NOT_FOUND);
-            logger.error("Runtime exception occurred for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
+            log.error("Runtime exception occurred for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
         } else {
             response = ApiResponse.error(StatusCodes.INTERNAL_SERVER_ERROR);
-            logger.error("Unhandled exception for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
+            log.error("Unhandled exception for request URL: {}. Error: {}", requestUrl, ex.getMessage(), ex);
         }
 
         String jsonResponse = jsonUtils.toJson(response);
