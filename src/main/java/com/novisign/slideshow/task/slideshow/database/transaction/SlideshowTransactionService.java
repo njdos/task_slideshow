@@ -2,6 +2,7 @@ package com.novisign.slideshow.task.slideshow.database.transaction;
 
 import com.novisign.slideshow.task.slideshow.constant.StatusCodes;
 import com.novisign.slideshow.task.slideshow.database.repository.ImageRepository;
+import com.novisign.slideshow.task.slideshow.database.repository.ProofOfPlayRepository;
 import com.novisign.slideshow.task.slideshow.database.repository.SlideshowImageRepository;
 import com.novisign.slideshow.task.slideshow.database.repository.SlideshowRepository;
 import com.novisign.slideshow.task.slideshow.entity.SlideshowImage;
@@ -23,6 +24,7 @@ public class SlideshowTransactionService {
 
     private final SlideshowRepository slideshowRepository;
     private final SlideshowImageRepository slideshowImageRepository;
+    private final ProofOfPlayRepository proofOfPlayRepository;
     private final ImageRepository imageRepository;
     private final TransactionalOperator transactionalOperator;
 
@@ -56,17 +58,27 @@ public class SlideshowTransactionService {
 
     public Mono<Boolean> deleteSlideshowById(Long slideshowId) {
         return transactionalOperator.transactional(
-                slideshowImageRepository.findIdsSlideshowImagesBySlideshowId(slideshowId)
-                        .collectList()
-                        .flatMap(ids -> {
-                            if (ids.isEmpty()) {
-                                return slideshowRepository.deleteById(slideshowId);
-                            } else {
-                                return Flux.fromIterable(ids)
-                                        .flatMap(slideshowImageRepository::deleteById)
-                                        .collectList()
-                                        .flatMap(results -> slideshowRepository.deleteById(slideshowId));
-                            }
+                Mono.zip(
+                                slideshowImageRepository.findIdsSlideshowImagesBySlideshowId(slideshowId).collectList(),
+                                proofOfPlayRepository.findIdsProofOfPlayBySlideshowId(slideshowId).collectList()
+                        )
+                        .flatMap(results -> {
+                            List<Long> slideshowIds = results.getT1();
+                            List<Long> proofOfPlayIds = results.getT2();
+
+                            Mono<Void> slideshowDeleteMono = slideshowIds.isEmpty() ? Mono.empty() :
+                                    Flux.fromIterable(slideshowIds)
+                                            .flatMap(slideshowImageRepository::deleteById)
+                                            .then();
+
+                            Mono<Void> proofOfPlayDeleteMono = proofOfPlayIds.isEmpty() ? Mono.empty() :
+                                    Flux.fromIterable(proofOfPlayIds)
+                                            .flatMap(proofOfPlayRepository::deleteById)
+                                            .then();
+
+                            return Mono.when(slideshowDeleteMono, proofOfPlayDeleteMono)
+                                    .then(slideshowRepository.deleteById(slideshowId)
+                                            .thenReturn(true));
                         })
                         .onErrorReturn(false)
         );

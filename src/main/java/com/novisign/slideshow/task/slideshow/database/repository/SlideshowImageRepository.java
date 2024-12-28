@@ -27,11 +27,11 @@ public class SlideshowImageRepository {
         );
     }
 
-    public Flux<Long> findIdsSlideshowImagesBySlideshowId(Long slideshowId) {
-        return databaseHelper.executeForMany(
-                SlideshowImageQueryMapping.GET_PK_BY_SLIDESHOW_ID,
-                spec -> spec.bind("slideshow_id", slideshowId),
-                "fetching pk slideshow image by slideshow id"
+    public Mono<Boolean> deleteById(Long id) {
+        return databaseHelper.executeDeleteOperation(
+                SlideshowImageQueryMapping.DELETE_ENTITY,
+                spec -> spec.bind("id", id),
+                "deleting slideshow image"
         );
     }
 
@@ -43,14 +43,6 @@ public class SlideshowImageRepository {
         );
     }
 
-    public Flux<Long> findIdsSlideshowImagesByImageId(Long imageId) {
-        return databaseHelper.executeForMany(
-                SlideshowImageQueryMapping.GET_PK_BY_IMAGE_ID,
-                spec -> spec.bind("image_id", imageId),
-                "fetching slideshow image by image ids"
-        );
-    }
-
     public Flux<SlideshowImage> findIdsSlideshowImagesBySlideshowIds(Long slideshowId) {
         return databaseHelper.executeForMany(
                 SlideshowImageQueryMapping.GET_ENTITY_BY_SLIDESHOW_ID,
@@ -59,11 +51,20 @@ public class SlideshowImageRepository {
         );
     }
 
-    public Mono<Boolean> deleteById(Long id) {
-        return databaseHelper.executeDeleteOperation(
-                SlideshowImageQueryMapping.DELETE_ENTITY,
-                spec -> spec.bind("id", id),
-                "deleting slideshow image"
+
+    public Flux<Long> findIdsSlideshowImagesBySlideshowId(Long slideshowId) {
+        return databaseHelper.executeForMany(
+                SlideshowImageQueryMapping.GET_PK_BY_SLIDESHOW_ID,
+                spec -> spec.bind("slideshow_id", slideshowId),
+                "fetching pk slideshow image by slideshow id"
+        );
+    }
+
+    public Flux<Long> findIdsSlideshowImagesByImageId(Long imageId) {
+        return databaseHelper.executeForMany(
+                SlideshowImageQueryMapping.GET_PK_BY_IMAGE_ID,
+                spec -> spec.bind("image_id", imageId),
+                "fetching slideshow image by image ids"
         );
     }
 
