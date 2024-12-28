@@ -3,6 +3,7 @@ package com.novisign.slideshow.task.slideshow.database.transaction;
 import com.novisign.slideshow.task.slideshow.constant.ImageSearchTypes;
 import com.novisign.slideshow.task.slideshow.database.repository.ImageRepository;
 import com.novisign.slideshow.task.slideshow.database.repository.ImageSearchEngineRepository;
+import com.novisign.slideshow.task.slideshow.database.repository.SlideshowImageRepository;
 import com.novisign.slideshow.task.slideshow.entity.Image;
 import com.novisign.slideshow.task.slideshow.exception.TransactionRollbackException;
 import com.novisign.slideshow.task.slideshow.factory.EntityFactory;
@@ -21,6 +22,7 @@ public class ImageTransactionService {
 
     private final ImageRepository imageRepository;
     private final ImageSearchEngineRepository imageSearchEngineRepository;
+    private final SlideshowImageRepository slideshowImageRepository;
     private final EntityFactory entityFactory;
     private final TransactionalOperator transactionalOperator;
 
@@ -42,28 +44,40 @@ public class ImageTransactionService {
                                                 return Mono.just(savedImageId);
                                             });
                                 }))
-                        .onErrorResume(error -> Mono.error(new TransactionRollbackException("Transaction failed")))
+                        .onErrorReturn(-1L)
         );
     }
 
 
     public Mono<Boolean> deleteImageById(Long imageId) {
         return transactionalOperator.transactional(
-                imageSearchEngineRepository.findIdsImageSearchByImageId(imageId)
-                        .collectList()
-                        .flatMap(ids -> {
-                            if (ids.isEmpty()) {
-                                return imageRepository.deleteById(imageId);
-                            } else {
-                                return Flux.fromIterable(ids)
-                                        .flatMap(imageSearchEngineRepository::deleteById)
-                                        .collectList()
-                                        .flatMap(results -> imageRepository.deleteById(imageId));
-                            }
+                Mono.zip(
+                                slideshowImageRepository.findIdsSlideshowImagesByImageId(imageId).collectList(),
+                                imageSearchEngineRepository.findIdsImageSearchByImageId(imageId).collectList()
+                        )
+                        .flatMap(results -> {
+                            List<Long> slideshowIds = results.getT1();
+                            List<Long> imageSearchIds = results.getT2();
+
+                            Mono<Void> slideshowDeleteMono = slideshowIds.isEmpty() ? Mono.empty() :
+                                    Flux.fromIterable(slideshowIds)
+                                            .flatMap(slideshowImageRepository::deleteById)
+                                            .then();
+
+                            Mono<Void> imageSearchDeleteMono = imageSearchIds.isEmpty() ? Mono.empty() :
+                                    Flux.fromIterable(imageSearchIds)
+                                            .flatMap(imageSearchEngineRepository::deleteById)
+                                            .then();
+
+                            return Mono.when(slideshowDeleteMono, imageSearchDeleteMono)
+                                    .then(imageRepository.deleteById(imageId)
+                                    .thenReturn(true));
                         })
                         .onErrorReturn(false)
         );
     }
+
+
 
     private Mono<Boolean> saveKeywords(Long imageId, List<String> keywords) {
         return Flux.fromIterable(keywords)
