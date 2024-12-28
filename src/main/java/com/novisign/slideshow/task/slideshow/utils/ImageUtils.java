@@ -17,24 +17,23 @@ public class ImageUtils {
     public Mono<String> createSearchQuery(SearchRequest searchRequest) {
         StringBuilder queryBuilder = new StringBuilder("SELECT image_id AS id FROM image_search_engine WHERE ");
 
-        boolean isFirstCondition = true;
+        boolean[] isFirstCondition = {true};
 
         if (searchRequest.keyword() != null && !searchRequest.keyword().isEmpty()) {
-            queryBuilder.append("type = :typeKeyword AND value ILIKE :value1");
-            isFirstCondition = false;
+            if (!isFirstCondition[0]) queryBuilder.append(" OR ");
+            queryBuilder.append("type = LOWER(:typeKeyword) AND value ILIKE :value1");
+            isFirstCondition[0] = false;
         }
 
-        boolean finalIsFirstCondition = isFirstCondition;
         return validator.validateDuration(searchRequest.duration())
                 .flatMap(isValid -> {
                     if (isValid) {
-                        if (!finalIsFirstCondition) {
-                            queryBuilder.append(" AND ");
-                        }
-                        queryBuilder.append("type = :typeDuration AND value = :value2");
+                        if (!isFirstCondition[0]) queryBuilder.append(" OR ");
+                        queryBuilder.append("type = LOWER(:typeDuration) AND value = :value2");
+                        isFirstCondition[0] = false;
                     }
 
-                    if (finalIsFirstCondition) {
+                    if (isFirstCondition[0]) {
                         return Mono.empty();
                     }
 
