@@ -3,7 +3,7 @@ package com.novisign.slideshow.task.slideshow.database.repository;
 import com.novisign.slideshow.task.slideshow.database.helper.DatabaseHelper;
 import com.novisign.slideshow.task.slideshow.database.queryMapping.ImageQueryMapping;
 import com.novisign.slideshow.task.slideshow.entity.Image;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -11,15 +11,10 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Repository
+@AllArgsConstructor
 public class ImageRepository {
 
     private final DatabaseHelper databaseHelper;
-
-    @Autowired
-    public ImageRepository(DatabaseHelper databaseHelper) {
-        this.databaseHelper = databaseHelper;
-    }
-
 
     public Mono<Image> findImageByUrl(String url) {
         return databaseHelper.executeForOne(

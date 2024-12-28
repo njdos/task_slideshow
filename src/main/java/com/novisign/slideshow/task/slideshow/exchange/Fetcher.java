@@ -1,6 +1,7 @@
 package com.novisign.slideshow.task.slideshow.exchange;
 
 import com.novisign.slideshow.task.slideshow.config.HttpClientConfig;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -10,13 +11,8 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 
 @Component
+@AllArgsConstructor
 public class Fetcher {
-
-    @Autowired
-    public Fetcher(WebClient.Builder webClientBuilder, RetryPolicy retryPolicy) {
-        this.webClientBuilder = webClientBuilder;
-        this.retryPolicy = retryPolicy;
-    }
 
     private final WebClient.Builder webClientBuilder;
     private final RetryPolicy retryPolicy;

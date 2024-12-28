@@ -10,7 +10,7 @@ import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.utils.ApiResponseUtils;
 import com.novisign.slideshow.task.slideshow.utils.UrlUtils;
 import com.novisign.slideshow.task.slideshow.validator.Validator;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -19,15 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@AllArgsConstructor
 public class ImageProcessor {
-
-    @Autowired
-    public ImageProcessor(Fetcher fetcher, Validator validator, UrlUtils urlUtils, DatabaseAPI databaseAPI) {
-        this.fetcher = fetcher;
-        this.validator = validator;
-        this.urlUtils = urlUtils;
-        this.databaseAPI = databaseAPI;
-    }
 
     private final Fetcher fetcher;
     private final Validator validator;

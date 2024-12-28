@@ -14,7 +14,19 @@ public enum ProofOfPlayQueryMapping implements QueryMapping {
             RETURNING id
             """,
             Mapper.mapRowToId
-    );
+    ),
+    GET_PK_BY_IMAGE_ID(
+            "SELECT id FROM proof_of_play WHERE image_id = :image_id",
+            Mapper.mapRowToId
+    ),
+    GET_PK_BY_SLIDESHOW_ID(
+            "SELECT id FROM proof_of_play WHERE slideshow_id = :slideshow_id",
+            Mapper.mapRowToId
+    ),
+    DELETE_ENTITY(
+            "DELETE FROM proof_of_play WHERE id = :id",
+            null
+    );;
 
     private final String query;
     private final BiFunction<Row, RowMetadata, ?> mapping;

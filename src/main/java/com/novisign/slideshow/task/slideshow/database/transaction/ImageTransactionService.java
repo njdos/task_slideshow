@@ -3,12 +3,13 @@ package com.novisign.slideshow.task.slideshow.database.transaction;
 import com.novisign.slideshow.task.slideshow.constant.ImageSearchTypes;
 import com.novisign.slideshow.task.slideshow.database.repository.ImageRepository;
 import com.novisign.slideshow.task.slideshow.database.repository.ImageSearchEngineRepository;
+import com.novisign.slideshow.task.slideshow.database.repository.ProofOfPlayRepository;
+import com.novisign.slideshow.task.slideshow.database.repository.SlideshowImageRepository;
 import com.novisign.slideshow.task.slideshow.entity.Image;
 import com.novisign.slideshow.task.slideshow.exception.TransactionRollbackException;
 import com.novisign.slideshow.task.slideshow.factory.EntityFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -16,71 +17,75 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class ImageTransactionService {
 
-    @Autowired
-    public ImageTransactionService(ImageRepository imageRepository,
-                                   ImageSearchEngineRepository imageSearchEngineRepository,
-                                   EntityFactory entityFactory,
-                                   TransactionalOperator transactionalOperator) {
-        this.imageRepository = imageRepository;
-        this.imageSearchEngineRepository = imageSearchEngineRepository;
-        this.entityFactory = entityFactory;
-        this.transactionalOperator = transactionalOperator;
-    }
 
     private final ImageRepository imageRepository;
     private final ImageSearchEngineRepository imageSearchEngineRepository;
-
+    private final ProofOfPlayRepository proofOfPlayRepository;
+    private final SlideshowImageRepository slideshowImageRepository;
     private final EntityFactory entityFactory;
     private final TransactionalOperator transactionalOperator;
 
 
     public Mono<Long> saveNewImageWithKeywords(Image image, List<String> keywords) {
-        return Mono.from(transactionalOperator.execute(status ->
+        return transactionalOperator.transactional(
                 imageRepository.save(image)
-                        .flatMap(imageId -> {
-                            if (imageId <= 0) {
-                                return Mono.error(new TransactionRollbackException("Failed to save image"));
-                            }
+                        .flatMap(savedImageId -> saveKeywords(savedImageId, keywords)
+                                .flatMap(keywordsSaved -> {
+                                    if (!keywordsSaved) {
+                                        return Mono.error(new TransactionRollbackException("Failed to save keywords"));
+                                    }
 
-
-                            return saveKeywords(imageId, keywords)
-                                    .flatMap(keywordsSaved -> {
-                                        if (!keywordsSaved) {
-                                            return Mono.error(new TransactionRollbackException("Failed to save keywords"));
-                                        }
-
-                                        return saveDuration(imageId, image.getDuration().toString())
-                                                .flatMap(durationSaved -> {
-                                                    if (!durationSaved) {
-                                                        return Mono.error(new TransactionRollbackException("Failed to save duration"));
-                                                    }
-                                                    return Mono.just(imageId);
-                                                });
-                                    });
-                        })
-                        .onErrorResume(error -> Mono.just(-1L))
-        ));
+                                    return saveDuration(savedImageId, image.getDuration().toString())
+                                            .flatMap(durationSaved -> {
+                                                if (!durationSaved) {
+                                                    return Mono.error(new TransactionRollbackException("Failed to save duration"));
+                                                }
+                                                return Mono.just(savedImageId);
+                                            });
+                                }))
+                        .onErrorReturn(-1L)
+        );
     }
 
 
-    @Transactional
     public Mono<Boolean> deleteImageById(Long imageId) {
-        return imageSearchEngineRepository.findIdsImageSearchByImageId(imageId)
-                .collectList()
-                .flatMap(ids -> {
-                    if (ids.isEmpty()) {
-                        return imageRepository.deleteById(imageId);
-                    } else {
-                        return Flux.fromIterable(ids)
-                                .flatMap(imageSearchEngineRepository::deleteById)
-                                .collectList()
-                                .flatMap(results -> imageRepository.deleteById(imageId));
-                    }
-                })
-                .onErrorReturn(false);
+        return transactionalOperator.transactional(
+                Mono.zip(
+                                slideshowImageRepository.findIdsSlideshowImagesByImageId(imageId).collectList(),
+                                imageSearchEngineRepository.findIdsImageSearchByImageId(imageId).collectList(),
+                                proofOfPlayRepository.findIdsProofOfPlayByImageId(imageId).collectList()
+                        )
+                        .flatMap(results -> {
+                            List<Long> slideshowIds = results.getT1();
+                            List<Long> imageSearchIds = results.getT2();
+                            List<Long> proofOfPlayIds = results.getT3();
+
+                            Mono<Void> slideshowDeleteMono = slideshowIds.isEmpty() ? Mono.empty() :
+                                    Flux.fromIterable(slideshowIds)
+                                            .flatMap(slideshowImageRepository::deleteById)
+                                            .then();
+
+                            Mono<Void> imageSearchDeleteMono = imageSearchIds.isEmpty() ? Mono.empty() :
+                                    Flux.fromIterable(imageSearchIds)
+                                            .flatMap(imageSearchEngineRepository::deleteById)
+                                            .then();
+
+                            Mono<Void> proofOfPlayDeleteMono = proofOfPlayIds.isEmpty() ? Mono.empty() :
+                                    Flux.fromIterable(proofOfPlayIds)
+                                            .flatMap(proofOfPlayRepository::deleteById)
+                                            .then();
+
+                            return Mono.when(slideshowDeleteMono, imageSearchDeleteMono, proofOfPlayDeleteMono)
+                                    .then(imageRepository.deleteById(imageId)
+                                            .thenReturn(true));
+                        })
+                        .onErrorReturn(false)
+        );
     }
+
 
     private Mono<Boolean> saveKeywords(Long imageId, List<String> keywords) {
         return Flux.fromIterable(keywords)

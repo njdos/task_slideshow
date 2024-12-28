@@ -2,14 +2,14 @@ package com.novisign.slideshow.task.slideshow.database.transaction;
 
 import com.novisign.slideshow.task.slideshow.constant.StatusCodes;
 import com.novisign.slideshow.task.slideshow.database.repository.ImageRepository;
+import com.novisign.slideshow.task.slideshow.database.repository.ProofOfPlayRepository;
 import com.novisign.slideshow.task.slideshow.database.repository.SlideshowImageRepository;
 import com.novisign.slideshow.task.slideshow.database.repository.SlideshowRepository;
 import com.novisign.slideshow.task.slideshow.entity.SlideshowImage;
 import com.novisign.slideshow.task.slideshow.exception.TransactionRollbackException;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,26 +19,17 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class SlideshowTransactionService {
-
-    @Autowired
-    public SlideshowTransactionService(SlideshowRepository slideshowRepository,
-                                       SlideshowImageRepository slideshowImageRepository,
-                                       ImageRepository imageRepository,
-                                       TransactionalOperator transactionalOperator) {
-        this.slideshowRepository = slideshowRepository;
-        this.slideshowImageRepository = slideshowImageRepository;
-        this.imageRepository = imageRepository;
-        this.transactionalOperator = transactionalOperator;
-    }
 
     private final SlideshowRepository slideshowRepository;
     private final SlideshowImageRepository slideshowImageRepository;
+    private final ProofOfPlayRepository proofOfPlayRepository;
     private final ImageRepository imageRepository;
     private final TransactionalOperator transactionalOperator;
 
     public Mono<Long> saveNewSlideshow(String name, Map<Long, Integer> correctSlideshow) {
-        return Mono.from(transactionalOperator.execute(status ->
+        return transactionalOperator.transactional(
                 slideshowRepository.save(name)
                         .flatMap(slideshowId -> {
                             if (slideshowId <= 0) {
@@ -54,7 +45,7 @@ public class SlideshowTransactionService {
                                     });
                         })
                         .onErrorResume(error -> Mono.just(-1L))
-        ));
+        );
     }
 
     private Mono<Boolean> saveSlideshow(Long slideshowId, Map<Long, Integer> correctSlideshow) {
@@ -65,21 +56,32 @@ public class SlideshowTransactionService {
                 .defaultIfEmpty(false);
     }
 
-    @Transactional
     public Mono<Boolean> deleteSlideshowById(Long slideshowId) {
-        return slideshowImageRepository.findIdsSlideshowImagesBySlideshowId(slideshowId)
-                .collectList()
-                .flatMap(ids -> {
-                    if (ids.isEmpty()) {
-                        return slideshowRepository.deleteById(slideshowId);
-                    } else {
-                        return Flux.fromIterable(ids)
-                                .flatMap(slideshowImageRepository::deleteById)
-                                .collectList()
-                                .flatMap(results -> slideshowRepository.deleteById(slideshowId));
-                    }
-                })
-                .onErrorReturn(false);
+        return transactionalOperator.transactional(
+                Mono.zip(
+                                slideshowImageRepository.findIdsSlideshowImagesBySlideshowId(slideshowId).collectList(),
+                                proofOfPlayRepository.findIdsProofOfPlayBySlideshowId(slideshowId).collectList()
+                        )
+                        .flatMap(results -> {
+                            List<Long> slideshowIds = results.getT1();
+                            List<Long> proofOfPlayIds = results.getT2();
+
+                            Mono<Void> slideshowDeleteMono = slideshowIds.isEmpty() ? Mono.empty() :
+                                    Flux.fromIterable(slideshowIds)
+                                            .flatMap(slideshowImageRepository::deleteById)
+                                            .then();
+
+                            Mono<Void> proofOfPlayDeleteMono = proofOfPlayIds.isEmpty() ? Mono.empty() :
+                                    Flux.fromIterable(proofOfPlayIds)
+                                            .flatMap(proofOfPlayRepository::deleteById)
+                                            .then();
+
+                            return Mono.when(slideshowDeleteMono, proofOfPlayDeleteMono)
+                                    .then(slideshowRepository.deleteById(slideshowId)
+                                            .thenReturn(true));
+                        })
+                        .onErrorReturn(false)
+        );
     }
 
     public Flux<ApiResponse> slideshowOrder(Long slideshowId) {
