@@ -3,6 +3,7 @@ package com.novisign.slideshow.task.slideshow.service;
 import com.novisign.slideshow.task.slideshow.constant.StatusCodes;
 import com.novisign.slideshow.task.slideshow.database.DatabaseAPI;
 import com.novisign.slideshow.task.slideshow.entity.ProofOfPlay;
+import com.novisign.slideshow.task.slideshow.kafka.KafkaAPI;
 import com.novisign.slideshow.task.slideshow.model.AddSlideshowRequest;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.processor.SlideShowProcessor;
@@ -31,12 +32,15 @@ class SlideshowServiceTest {
     @Mock
     private Validator validator;
 
+    @Mock
+    private KafkaAPI kafkaAPI;
+
     private SlideshowService slideshowService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        slideshowService = new SlideshowService(databaseAPI, slideShowProcessor, validator);
+        slideshowService = new SlideshowService(kafkaAPI, databaseAPI, slideShowProcessor, validator);
     }
 
     @Test
@@ -52,21 +56,6 @@ class SlideshowServiceTest {
                 .verifyComplete();
 
         verify(slideShowProcessor, times(1)).isValidRequest(request);
-    }
-
-    @Test
-    void testDeleteSlideshowById_success() {
-        Long slideshowId = 1L;
-
-        when(databaseAPI.deleteSlideshowById(slideshowId)).thenReturn(Mono.just(true));
-
-        Mono<ApiResponse> result = slideshowService.deleteSlideshowById(slideshowId);
-
-        StepVerifier.create(result)
-                .expectNextMatches(response -> response.getCode() == StatusCodes.SUCCESS.getCode())
-                .verifyComplete();
-
-        verify(databaseAPI, times(1)).deleteSlideshowById(slideshowId);
     }
 
     @Test

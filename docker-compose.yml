@@ -10,10 +10,12 @@ services:
       - "8080:8080"
     depends_on:
       - db
+      - kafka
     environment:
-      SPRING_R2DBC_URL: r2dbc:postgresql://db:5432/slideshow_db
+      SPRING_R2DBC_URL: ${SPRING_R2DBC_URL}
       SPRING_R2DBC_USERNAME: ${SPRING_R2DBC_USERNAME}
       SPRING_R2DBC_PASSWORD: ${SPRING_R2DBC_PASSWORD}
+      KAFKA_BROKER_ADDRESS: ${KAFKA_BROKER_ADDRESS}
     networks:
       - slideshow-network
     restart: unless-stopped
@@ -32,6 +34,35 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
       - ./src/main/resources/db:/docker-entrypoint-initdb.d
+    networks:
+      - slideshow-network
+    restart: unless-stopped
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - slideshow-network
+    restart: unless-stopped
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.1
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
     networks:
       - slideshow-network
     restart: unless-stopped

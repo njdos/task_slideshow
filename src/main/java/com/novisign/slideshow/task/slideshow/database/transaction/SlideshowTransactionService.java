@@ -77,8 +77,7 @@ public class SlideshowTransactionService {
                                             .then();
 
                             return Mono.when(slideshowDeleteMono, proofOfPlayDeleteMono)
-                                    .then(slideshowRepository.deleteById(slideshowId)
-                                            .thenReturn(true));
+                                    .then(slideshowRepository.deleteById(slideshowId));
                         })
                         .onErrorReturn(false)
         );
