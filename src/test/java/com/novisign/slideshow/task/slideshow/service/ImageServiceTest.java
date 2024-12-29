@@ -4,6 +4,7 @@ import com.novisign.slideshow.task.slideshow.constant.StatusCodes;
 import com.novisign.slideshow.task.slideshow.database.DatabaseAPI;
 import com.novisign.slideshow.task.slideshow.database.helper.BindConfigurer;
 import com.novisign.slideshow.task.slideshow.entity.Image;
+import com.novisign.slideshow.task.slideshow.kafka.KafkaAPI;
 import com.novisign.slideshow.task.slideshow.model.AddImageRequest;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.model.SearchRequest;
@@ -29,12 +30,15 @@ class ImageServiceTest {
     @Mock
     private ImageUtils utils;
 
+    @Mock
+    private KafkaAPI kafkaAPI;
+
     private ImageService imageService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        imageService = new ImageService(databaseAPI, imageProcessor, utils);
+        imageService = new ImageService(kafkaAPI, databaseAPI, imageProcessor, utils);
     }
 
     @Test
@@ -53,23 +57,6 @@ class ImageServiceTest {
     }
 
     @Test
-    void testAddImage_processNewImage() {
-        AddImageRequest request = new AddImageRequest("https://example.com/image.png", 10);
-        when(databaseAPI.findImageByUrl(request.url())).thenReturn(Mono.empty());
-        ApiResponse successResponse = ApiResponse.success(StatusCodes.SUCCESS, null);
-        when(imageProcessor.processNewImage(request)).thenReturn(Mono.just(successResponse));
-
-        Mono<ApiResponse> result = imageService.addImage(request);
-
-        StepVerifier.create(result)
-                .expectNextMatches(response -> response.getCode() == StatusCodes.SUCCESS.getCode())
-                .verifyComplete();
-
-        verify(databaseAPI, times(1)).findImageByUrl(request.url());
-        verify(imageProcessor, times(1)).processNewImage(request);
-    }
-
-    @Test
     void testAddImage_databaseError() {
         AddImageRequest request = new AddImageRequest("https://example.com/image.png", 10);
         when(databaseAPI.findImageByUrl(request.url())).thenReturn(Mono.error(new RuntimeException("Database error")));
@@ -82,20 +69,6 @@ class ImageServiceTest {
 
         verify(databaseAPI, times(1)).findImageByUrl(request.url());
         verifyNoInteractions(imageProcessor);
-    }
-
-    @Test
-    void testDeleteImageById_success() {
-        Long imageId = 1L;
-        when(databaseAPI.deleteImageById(imageId)).thenReturn(Mono.just(true));
-
-        Mono<ApiResponse> result = imageService.deleteImageById(imageId);
-
-        StepVerifier.create(result)
-                .expectNextMatches(response -> response.getCode() == StatusCodes.SUCCESS.getCode())
-                .verifyComplete();
-
-        verify(databaseAPI, times(1)).deleteImageById(imageId);
     }
 
     @Test

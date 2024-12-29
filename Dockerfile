@@ -1,4 +1,3 @@
-# Используем образ Maven с OpenJDK 17 для сборки
 FROM maven:3.8.4-openjdk-17-slim AS build
 
 WORKDIR /app
@@ -9,7 +8,6 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Используем другой образ OpenJDK 17 для запуска приложения
 FROM openjdk:17-jdk-slim
 
 WORKDIR /app

@@ -4,6 +4,7 @@ import com.novisign.slideshow.task.slideshow.constant.StatusCodes;
 import com.novisign.slideshow.task.slideshow.database.DatabaseAPI;
 import com.novisign.slideshow.task.slideshow.database.helper.BindConfigurer;
 import com.novisign.slideshow.task.slideshow.database.queryMapping.DynamicQueryMapping;
+import com.novisign.slideshow.task.slideshow.kafka.KafkaAPI;
 import com.novisign.slideshow.task.slideshow.mapper.Mapper;
 import com.novisign.slideshow.task.slideshow.model.AddImageRequest;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
@@ -21,6 +22,7 @@ import java.util.Collections;
 @AllArgsConstructor
 public class ImageService {
 
+    private final KafkaAPI kafkaAPI;
     private final DatabaseAPI databaseAPI;
     private final ImageProcessor imageProcessor;
     private final ImageUtils imageUtils;
@@ -32,6 +34,15 @@ public class ImageService {
                         ? Mono.just(ApiResponse.error(StatusCodes.ALREADY_EXISTS))
                         : imageProcessor.processNewImage(request)
                 )
+                .flatMap(response -> {
+                    if (response.getCode() == StatusCodes.SUCCESS.getCode()) {
+                        String eventMessage = "Image added: " + request.url();
+                        return kafkaAPI.publishImageEvent("image_added", eventMessage)
+                                .thenReturn(response);
+                    } else {
+                        return Mono.just(response);
+                    }
+                })
                 .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
     }
 
@@ -39,7 +50,14 @@ public class ImageService {
         return databaseAPI.deleteImageById(id)
                 .flatMap(deleted -> deleted
                         ? Mono.just(ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList()))
-                        : Mono.just(ApiResponse.error(StatusCodes.NOT_FOUND)))
+                        : Mono.just(ApiResponse.error(StatusCodes.NOT_FOUND))
+                )
+                .doOnSuccess(response -> {
+                    if (response.getCode() == StatusCodes.SUCCESS.getCode()) {
+                        String eventMessage = "Image deleted: " + id;
+                        kafkaAPI.publishImageEvent("image_deleted", eventMessage).subscribe();
+                    }
+                })
                 .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
     }
 

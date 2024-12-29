@@ -50,7 +50,6 @@ public class ImageTransactionService {
         );
     }
 
-
     public Mono<Boolean> deleteImageById(Long imageId) {
         return transactionalOperator.transactional(
                 Mono.zip(
@@ -79,8 +78,7 @@ public class ImageTransactionService {
                                             .then();
 
                             return Mono.when(slideshowDeleteMono, imageSearchDeleteMono, proofOfPlayDeleteMono)
-                                    .then(imageRepository.deleteById(imageId)
-                                            .thenReturn(true));
+                                    .then(imageRepository.deleteById(imageId));
                         })
                         .onErrorReturn(false)
         );

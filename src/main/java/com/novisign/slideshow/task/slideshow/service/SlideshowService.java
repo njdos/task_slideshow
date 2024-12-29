@@ -4,6 +4,7 @@ import com.novisign.slideshow.task.slideshow.constant.StatusCodes;
 import com.novisign.slideshow.task.slideshow.database.DatabaseAPI;
 import com.novisign.slideshow.task.slideshow.entity.Image;
 import com.novisign.slideshow.task.slideshow.entity.ProofOfPlay;
+import com.novisign.slideshow.task.slideshow.kafka.KafkaAPI;
 import com.novisign.slideshow.task.slideshow.model.AddSlideshowRequest;
 import com.novisign.slideshow.task.slideshow.model.ApiResponse;
 import com.novisign.slideshow.task.slideshow.processor.SlideShowProcessor;
@@ -21,6 +22,7 @@ import java.util.*;
 @AllArgsConstructor
 public class SlideshowService {
 
+    private final KafkaAPI kafkaAPI;
     private final DatabaseAPI databaseAPI;
     private final SlideShowProcessor slideShowProcessor;
     private final Validator validator;
@@ -42,6 +44,10 @@ public class SlideshowService {
                             .flatMap(slideshowId -> {
                                 ApiResponse successResponse = ApiResponse.success(StatusCodes.SUCCESS,
                                         Collections.singletonList(Map.of("slideshowId", slideshowId)));
+
+                                String eventMessage = "Slideshow added: " + slideshowId;
+                                kafkaAPI.publishSlideshowEvent("slideshow_added", eventMessage).subscribe();
+
                                 return Mono.just(successResponse);
                             })
                             .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
@@ -80,7 +86,14 @@ public class SlideshowService {
         return databaseAPI.deleteSlideshowById(id)
                 .flatMap(deleted -> deleted
                         ? Mono.just(ApiResponse.success(StatusCodes.SUCCESS, Collections.emptyList()))
-                        : Mono.just(ApiResponse.error(StatusCodes.NOT_FOUND)))
+                        : Mono.just(ApiResponse.error(StatusCodes.NOT_FOUND))
+                )
+                .doOnSuccess(response -> {
+                    if (response.getCode() == StatusCodes.SUCCESS.getCode()) {
+                        String eventMessage = "Slideshow deleted: " + id;
+                        kafkaAPI.publishSlideshowEvent("slideshow_deleted", eventMessage).subscribe();
+                    }
+                })
                 .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
     }
 
@@ -98,7 +111,6 @@ public class SlideshowService {
                 })
                 .onErrorResume(ApiResponseUtils::ERROR_DATABASE_OPERATION_FAILED);
     }
-
 
     public Flux<ApiResponse> processSlideshowWithDelays(List<ApiResponse> responses) {
         List<Integer> durations = responses.stream()
