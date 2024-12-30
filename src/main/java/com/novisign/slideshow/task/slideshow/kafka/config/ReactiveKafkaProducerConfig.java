@@ -32,6 +32,7 @@ public class ReactiveKafkaProducerConfig {
         producerProps.put(ProducerConfig.RETRIES_CONFIG, 3);
         producerProps.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 1000);
         producerProps.put(ProducerConfig.ACKS_CONFIG, "all");
+        producerProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4");
 
         return SenderOptions.create(producerProps);
     }

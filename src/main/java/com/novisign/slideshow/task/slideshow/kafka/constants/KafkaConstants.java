@@ -21,4 +21,7 @@ public class KafkaConstants {
     @Value("${slideshow-actions.topic.name}")
     private String SLIDESHOW_TOPIC_NAME;
 
+    @Value("${kafka.replica.count}")
+    private Integer REPLICA_COUNT;
+
 }
