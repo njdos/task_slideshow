@@ -16,13 +16,22 @@ public class KafkaConsumerSlideshowService implements CommandLineRunner {
 
     private final ReactiveKafkaConsumerTemplate<Object, Object> slideshowEventConsumerTemplate;
 
-    private Flux<ConsumerRecord<Object, Object>> consumeSlideshowEvents() {
+
+    private Flux<Void> consumeSlideshowEvents() {
         return slideshowEventConsumerTemplate
-                .receiveAutoAck()
-                .doOnNext(record -> log.info("Slideshow Event - Key: {}, Value: {}, Offset: {}",
-                        record.key(), record.value(), record.offset()))
-                .doOnError(error -> log.error("Error while consuming slideshow events: {}", error.getMessage()))
-                .onErrorResume(error -> Mono.empty());
+                .receive()
+                .flatMap(record -> processRecord(record)
+                        .doOnSuccess(v -> record.receiverOffset().acknowledge())
+                        .doOnError(error -> log.error("Error processing record: {}", error.getMessage())))
+                .doOnError(error -> log.error("Error while consuming image events: {}", error.getMessage()))
+                .onErrorResume(error -> Flux.empty());
+    }
+
+    private Mono<Void> processRecord(ConsumerRecord<Object, Object> record) {
+        return Mono.fromRunnable(() -> {
+            log.info("Slideshow Event - Key: {}, Value: {}, Offset: {}",
+                    record.key(), record.value(), record.offset());
+        });
     }
 
     @Override

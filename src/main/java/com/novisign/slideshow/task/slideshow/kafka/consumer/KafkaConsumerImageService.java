@@ -16,13 +16,21 @@ public class KafkaConsumerImageService implements CommandLineRunner {
 
     private final ReactiveKafkaConsumerTemplate<Object, Object> imageEventConsumerTemplate;
 
-    private Flux<ConsumerRecord<Object, Object>> consumeImageEvents() {
+    private Flux<Void> consumeImageEvents() {
         return imageEventConsumerTemplate
-                .receiveAutoAck()
-                .doOnNext(record -> log.info("Image Event - Key: {}, Value: {}, Offset: {}",
-                        record.key(), record.value(), record.offset()))
+                .receive()
+                .flatMap(record -> processRecord(record)
+                        .doOnSuccess(v -> record.receiverOffset().acknowledge())
+                        .doOnError(error -> log.error("Error processing record: {}", error.getMessage())))
                 .doOnError(error -> log.error("Error while consuming image events: {}", error.getMessage()))
-                .onErrorResume(error -> Mono.empty());
+                .onErrorResume(error -> Flux.empty());
+    }
+
+    private Mono<Void> processRecord(ConsumerRecord<Object, Object> record) {
+        return Mono.fromRunnable(() -> {
+            log.info("Image Event - Key: {}, Value: {}, Offset: {}",
+                    record.key(), record.value(), record.offset());
+        });
     }
 
     @Override
