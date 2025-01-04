@@ -15,8 +15,12 @@ public class ImageUtils {
     private final Validator validator;
 
     public Mono<String> createSearchQuery(SearchRequest searchRequest) {
-        StringBuilder queryBuilder = new StringBuilder("SELECT image_id AS id FROM image_search_engine WHERE ");
+        if ((searchRequest.keyword() == null || searchRequest.keyword().isEmpty()) &&
+                (searchRequest.duration() == null || searchRequest.duration() == 0)) {
+            return Mono.just("SELECT image_id AS id FROM image_search_engine");
+        }
 
+        StringBuilder queryBuilder = new StringBuilder("SELECT image_id AS id FROM image_search_engine WHERE ");
         boolean[] isFirstCondition = {true};
 
         if (searchRequest.keyword() != null && !searchRequest.keyword().isEmpty()) {

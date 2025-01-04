@@ -48,6 +48,11 @@ The **Image Slideshow Manager** is a backend application designed to manage a li
 - Built using modern Java techniques, such as reactive programming (WebFlux).
 - Fully containerized for easy deployment.
 
+### Quick Start
+
+To explore the full functionality of the application, simply navigate to the root URL (http://localhost:8080/). 
+The frontend interface will allow you to interact with all the features and see how everything works seamlessly. You can manage images, create slideshows, and track transitions directly from the user-friendly interface.
+
 ---
 
 ### Built With
@@ -77,7 +82,6 @@ The **Image Slideshow Manager** is a backend application designed to manage a li
 1. Clone the repository:
    ```sh
    git clone https://github.com/njdos/task_slideshow.git
-   cd task_slideshow
    ```
 
 2. Configure application.properties:
@@ -112,6 +116,8 @@ The **Image Slideshow Manager** is a backend application designed to manage a li
    SPRING_R2DBC_URL=r2dbc:postgresql://db:5432/slideshow_db
    SPRING_R2DBC_USERNAME=username
    SPRING_R2DBC_PASSWORD=password
+   
+   KAFKA_BROKER_ADDRESS=kafka:9092
    ```
 
 2. Start the application: Run the following command to build and start the project in Docker:
@@ -140,7 +146,7 @@ If you prefer not to build the project locally, you can use the prebuilt Docker 
 ### API Documentation
 
 * Swagger API Documentation: http://localhost:8080/swagger-ui/index.html
-* Application APIs: http://localhost:8080
+* Application APIs / Frontend: http://localhost:8080
 
 ---
 
@@ -157,9 +163,3 @@ Explore the API to:
 ### Contributing
 
 Contributions are welcome! Please open an issue to discuss your ideas.
-
----
-
-### Contact
-
-* Email: 14njdoss@gmail.com
