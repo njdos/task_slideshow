@@ -141,6 +141,15 @@ paths:
         - Image
       summary: Search image
       parameters:
+        - name: keyword
+          in: query
+          schema:
+            type: string
+        - name: duration
+          in: query
+          schema:
+            type: integer
+          example: '14'
         - name: vers
           in: path
           schema:
@@ -150,6 +159,10 @@ paths:
         '200':
           description: OK
           headers:
+            Vary:
+              schema:
+                type: string
+                example: Access-Control-Request-Headers
             Content-Type:
               schema:
                 type: string
@@ -157,7 +170,7 @@ paths:
             Content-Length:
               schema:
                 type: integer
-                example: '427'
+                example: '539'
           content:
             application/json:
               schema:
@@ -165,25 +178,33 @@ paths:
               example:
                 data:
                   - image:
-                      id: 10
+                      id: 67
                       url: >-
-                        https://fastly.picsum.photos/id/1080/200/300.jpg?hmac=3jCG4X8ni9cpiEppj6KVvqhpJ_owIFtDQOABJmhG1I0
-                      duration: 30
+                        https://fastly.picsum.photos/id/970/200/300.jpg?hmac=8mPwdPFtAKcn0NQrEIClW3IlOWsKgskAikm_8YQj-qM
+                      duration: 14
                       type: image/jpeg
-                      addedTime: '2024-12-17T01:36:11.399025'
+                      addedTime: '2024-12-30T00:00:13.358222'
                     slideshow:
-                      - id: 4
-                        slideshowId: 5
-                        imageId: 10
+                      - id: 21
+                        slideshowId: 12
+                        imageId: 67
                         duration: 10
-                      - id: 8
-                        slideshowId: 7
-                        imageId: 10
-                        duration: 30
-                      - id: 11
-                        slideshowId: 8
-                        imageId: 10
-                        duration: 30
+                      - id: 22
+                        slideshowId: 13
+                        imageId: 67
+                        duration: 10
+                      - id: 23
+                        slideshowId: 14
+                        imageId: 67
+                        duration: 10
+                      - id: 26
+                        slideshowId: 15
+                        imageId: 67
+                        duration: 13
+                      - id: 28
+                        slideshowId: 16
+                        imageId: 67
+                        duration: 14
                 status: success
                 code: 200
                 message: Ok

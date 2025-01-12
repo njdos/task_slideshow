@@ -52,8 +52,14 @@ public class ImageHandler {
     }
 
     public Mono<ServerResponse> search(ServerRequest request) {
-        return request.bodyToMono(SearchRequest.class)
-                .flatMap(imageService::search)
+        String keyword = request.queryParam("keyword").orElse(null);
+        Integer duration = request.queryParam("duration")
+                .map(Integer::parseInt)
+                .orElse(null);
+
+        SearchRequest searchRequest = new SearchRequest(keyword, duration);
+
+        return imageService.search(searchRequest)
                 .flatMap(images ->
                         ServerResponse.ok()
                                 .bodyValue(ApiResponse.success(StatusCodes.OK, images.getData()))
